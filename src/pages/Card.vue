@@ -2,7 +2,7 @@
   <div>
     <div class="flex">
       <div>
-        <q-btn color="light-blue" unelevated>
+        <q-btn color="light-blue" unelevated @click.stop="drawer=true">
           <q-icon name="ti-credit-card" size="15px" style="margin-top: -2px"/>
           <span class="q-ml-sm">开卡</span>
         </q-btn>
@@ -77,6 +77,109 @@
               @on-page-size-change="pageSizeChange"/>
     </div>
 
+    <!-- 侧面弹窗-->
+    <q-drawer
+      v-model="drawer"
+      :width='1100'
+      :breakpoint="500"
+      overlay
+      side="right"
+      bordered
+      @hide="select={}"
+    >
+      <q-scroll-area class="fit">
+        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
+          <q-icon name="ti-close" @click="drawer=false" class="flush"></q-icon>
+        </div>
+        <div class="q-px-md q-py-lg">
+          <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">请选择卡头</span>
+          </div>
+        </div>
+
+        <div class="flex q-ma-lg">
+          <div v-for="card in bankCardList" :key="card.id">
+            <div style="border: 1px solid rgba(0,0,0,0.1); border-radius: 5px" class="q-pa-md q-mr-md q-mb-md">
+              <q-radio dense v-model="select" :val="card" :label="card.bin + ' ' + card.cr" @input="input"/>
+            </div>
+          </div>
+        </div>
+
+        <div v-show="select.organization">
+          <div class="q-pl-lg">
+            <div class="item">
+              <div class="title">状态</div>
+              <span style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px">正常</span>
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">币种</div>
+              <span>USD</span>
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">类型</div>
+              <span>{{ select.organization }}</span>
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">地区</div>
+              <span>{{ select.cr }}</span>
+            </div>
+          </div>
+
+          <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+            <div class="item">
+              <div class="title">开卡费</div>
+              <span>{{ expense.openCardFeeAmount }} USD</span>
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">充值手续费</div>
+              <span>{{ expense.rechargeFeeAmountRate }}</span>
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">预计扣款</div>
+              <span>{{ Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) }} USD</span>
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">钱包余额</div>
+              <span>{{ client.balance }} USD</span>
+            </div>
+          </div>
+
+          <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+            <div class="item">
+              <div class="title">计划充值</div>
+              <q-input class="Ainput"
+                       outlined
+                       dense
+                       lazy-rules
+                       :rules="[
+                      (val) => val !== null && val !== ''  || '请输入充值金额'
+                    ]"
+                       style="display: inline-block"
+                       v-model="openRecharge.amount"
+              >
+              </q-input>
+
+            </div>
+            <div class="item q-mt-lg">
+              <div class="title">备注</div>
+              <q-input class="Ainput"
+                       outlined
+                       dense
+                       style="display: inline-block"
+                       v-model="openRecharge.remark"
+              >
+              </q-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-ml-lg q-mt-lg" :disabled="!select.organization">
+          <q-btn label="开卡" color="light-blue" unelevated @click="openCard(select)"></q-btn>
+        </div>
+
+
+      </q-scroll-area>
+    </q-drawer>
+
   </div>
 </template>
 
@@ -89,6 +192,8 @@ import WEmpty from "components/WEmpty.vue";
 import WDatePickerSecond from "components/WDatePickerSecond.vue";
 import {getCurrentDate} from "src/morejs/utils";
 import {_whc} from "src/morejs/_whc";
+import crypt from "src/morejs/crypt";
+import {KJUR} from "jsrsasign";
 
 export default {
   components: {
@@ -102,10 +207,17 @@ export default {
   name: 'PageIndex',
   data() {
     return {
+      drawer: false,
+      select: {},
       getCurrentDate,
       whc: _whc,
       total: 0,
       client: {},
+      expense: {},
+      openRecharge: {
+        amount: 10,
+        remark: ''
+      },
       proxyList: [],
       bankCardList: [],
       allCrList: [],
@@ -189,9 +301,18 @@ export default {
     } catch (aa) {
 
     }
+
+    try {
+      this.expense = JSON.parse(localStorage.getItem("expense"))
+    } catch (aa) {
+
+    }
     this.getAllBankCards()
   },
   methods: {
+    input(val) {
+      console.log(val)
+    },
     getList() {
       this.$axios.$get('/api_client/user_bank_card', this.queryObj).then(res => {
         if (res && res.code === 0) {
@@ -214,6 +335,18 @@ export default {
       this.$axios.$get(`/api_client/card_balance?bankNum=${data.number}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
           data.balance = Number(res.content).toFixed(2) + ' USD';
+        }
+      })
+    },
+    openCard(select) {
+      const openForm = {
+        bankCardId: select.id,
+        amount: this.openRecharge.amount,
+        remark: this.openRecharge.remark
+      }
+      this.$axios.$postForm('/api_client/open_card',openForm).then((resp) => {
+        if (resp && resp.code === 0) {
+          this.drawer = false
         }
       })
     },
@@ -277,8 +410,8 @@ export default {
 <style lang="stylus" scoped>
 .number {
   color: $light-blue;
-  font-size 30px
-  margin-left 10px
+  font-size: 30px;
+  margin-left: 10px
 }
 
 .flush {
@@ -287,5 +420,25 @@ export default {
 
 .flush:hover {
   color: $blue-3;
+}
+
+.box:hover {
+  box-shadow: 0px 6px 10px #e0e0e0;
+}
+
+.item {
+  font-size: 15px;
+
+}
+
+.title {
+  display: inline-block;
+  width: 130px;
+  font-size: 15px;
+  color: #777986;
+}
+
+.Ainput {
+  width: calc(100% - 200px);
 }
 </style>
