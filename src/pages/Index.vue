@@ -18,9 +18,9 @@
         <div class="col-6">
           <q-btn color="light-blue" label="快速开卡" unelevated padding="20px 100px"/>
         </div>
-        <div class="col-6">
-          <q-btn color="light-blue" label="快速充值" unelevated padding="20px 100px"/>
-        </div>
+<!--        <div class="col-6">-->
+<!--          <q-btn color="light-blue" label="快速充值" unelevated padding="20px 100px"/>-->
+<!--        </div>-->
         <div class="col-6">
           <q-btn color="light-blue" label="交易明细" unelevated padding="20px 100px"/>
         </div>

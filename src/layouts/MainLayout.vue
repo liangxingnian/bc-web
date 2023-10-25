@@ -76,12 +76,14 @@ export default {
       routes,
       user: null,
       client: null,
+      expense: null,
       leftDrawerOpen: false
     }
   },
   mounted() {
     this.getCurrent()
     this.getClientCurrent()
+    this.getExpense()
   },
   methods: {
     getCurrent() {
@@ -94,6 +96,12 @@ export default {
       this.$axios.$get('/api_client/current', {skipDefault: true}).then(res => {
         this.client = res.content
         localStorage.setItem("client_current", JSON.stringify(this.client))
+      })
+    },
+    getExpense() {
+      this.$axios.$get('/api_client/expense', {skipDefault: true}).then(res => {
+        this.expense = res.content
+        localStorage.setItem("expense", JSON.stringify(this.expense))
       })
     },
     logout() {
