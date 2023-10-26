@@ -71,6 +71,11 @@
           {{ row.data.createTime ? whc.Date.formatDateTime(new Date(row.data.createTime)) : '-' }}
         </template>
 
+        <template slot="action" slot-scope="row">
+          <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1">充值</q-btn>
+          <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1">销卡</q-btn>
+        </template>
+
       </w-table>
       <w-empty :has="list.length" tip="没有找到相关的数据"/>
       <w-page v-if="list.length" ref="page" :current="queryObj.pageNumber" :total="total" @on-change="pageNumberChange"
@@ -151,13 +156,13 @@
                        dense
                        lazy-rules
                        :rules="[
-                      (val) => val !== null && val !== ''  || '请输入充值金额'
+                      (val) => val !== null && val !== ''  || '请输入充值金额',
+                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
                     ]"
                        style="display: inline-block"
                        v-model="openRecharge.amount"
               >
               </q-input>
-
             </div>
             <div class="item q-mt-lg">
               <div class="title">备注</div>
@@ -171,12 +176,124 @@
             </div>
           </div>
         </div>
+        <div class="q-ml-lg q-mt-lg">
+          <q-btn label="开卡" color="light-blue" unelevated @click="openCard(select)" :disabled="!select.organization"></q-btn>
+        </div>
+      </q-scroll-area>
+    </q-drawer>
 
-        <div class="q-ml-lg q-mt-lg" :disabled="!select.organization">
-          <q-btn label="开卡" color="light-blue" unelevated @click="openCard(select)"></q-btn>
+    <!-- 充值侧面弹窗-->
+    <q-drawer
+      v-model="drawer2"
+      :width='1100'
+      :breakpoint="500"
+      overlay
+      side="right"
+      bordered
+      @hide="this.cardId = '';this.cardNum = ''"
+    >
+      <q-scroll-area class="fit">
+        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
+          <q-icon name="ti-close" @click="rechargeClose()" class="flush"></q-icon>
+        </div>
+        <div class="q-px-md q-py-lg">
+          <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">充值</span>
+          </div>
         </div>
 
+        <div>
+          <div class="q-pl-lg q-mt-lg q-ml-lg">
+            <div class="item">
+              <div class="title">卡号</div>
+              <span>{{this.cardNum}}</span>
+            </div>
 
+            <div class="item q-mt-lg">
+              <div class="title">充值手续费</div>
+              <span>{{ expense.rechargeFeeAmountRate }}</span>
+            </div>
+
+            <div class="item q-mt-lg">
+              <div class="title">预计扣款</div>
+              <span>{{ Number(cardRecharge.amount) + (Number(cardRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) }} USD</span>
+            </div>
+
+          </div>
+
+          <div class=" q-pl-lg q-mt-lg q-ml-lg" style="margin-top: 50px">
+            <div class="item q-mt-lg">
+              <div class="title">钱包余额</div>
+              <span>{{ client.balance }} USD</span>
+            </div>
+          </div>
+
+          <div class=" q-pl-lg q-mt-lg q-ml-lg" style="margin-top: 50px">
+            <div class="item">
+              <div class="title">计划充值</div>
+              <q-input class="Ainput"
+                       outlined
+                       dense
+                       lazy-rules
+                       :rules="[
+                      (val) => val !== null && val !== ''  || '请输入充值金额',
+                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足',
+                    ]"
+                       style="display: inline-block"
+                       v-model="cardRecharge.amount"
+              >
+              </q-input>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="q-pl-lg q-mt-lg q-ml-lg">
+          <q-btn label="充值" color="light-blue" unelevated @click="cardRechargeSubmit()"></q-btn>
+        </div>
+      </q-scroll-area>
+    </q-drawer>
+
+    <!-- 销卡侧面弹窗-->
+    <q-drawer
+      v-model="drawer3"
+      :width='1100'
+      :breakpoint="500"
+      overlay
+      side="right"
+      bordered
+      @hide="this.cardId = '';this.cardNum = ''"
+    >
+      <q-scroll-area class="fit">
+        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
+          <q-icon name="ti-close" @click="cancelClose()" class="flush"></q-icon>
+        </div>
+        <div class="q-px-md q-py-lg">
+          <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">销卡</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="q-pl-lg">
+            <div class="item">
+              <div style="font-size: 18px; line-height: 30px;">
+                1、销卡不可撤销
+                <br>
+                2、发起销卡后无法再进行交易，
+                <br>
+                3、发起销卡后无法再收到退款</div>
+            </div>
+          </div>
+          <div class="q-pl-md q-mt-lg">
+            <div class="item">
+              <q-checkbox size="30px" :color="val?'light-blue':''" :class="[val?'cancel':'noCancel']" v-model="val" label="我已知晓、如已确认以上信息，请点击左侧小方框"/>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="q-pl-lg q-mt-lg">
+          <q-btn label="销卡" color="light-blue" unelevated @click="cardCancelSubmit()" :disabled="!this.val"></q-btn>
+        </div>
       </q-scroll-area>
     </q-drawer>
 
@@ -208,13 +325,22 @@ export default {
   data() {
     return {
       drawer: false,
+      drawer2: false,
+      drawer3: false,
+      val: false,
       select: {},
       getCurrentDate,
       whc: _whc,
       total: 0,
+      cardNum: '',
+      cardId: '',
       client: {},
       expense: {},
       openRecharge: {
+        amount: 10,
+        remark: ''
+      },
+      cardRecharge: {
         amount: 10,
         remark: ''
       },
@@ -283,7 +409,7 @@ export default {
         },
         {
           title: '操作',
-          slot: 'option',
+          slot: 'action',
           minWidth: 100
         }
       ]
@@ -311,7 +437,6 @@ export default {
   },
   methods: {
     input(val) {
-      console.log(val)
     },
     getList() {
       this.$axios.$get('/api_client/user_bank_card', this.queryObj).then(res => {
@@ -331,6 +456,12 @@ export default {
         }
       })
     },
+    getClientCurrent() {
+      this.$axios.$get('/api_client/current', {skipDefault: true}).then(res => {
+        this.client = res.content
+        localStorage.setItem("client_current", JSON.stringify(this.client))
+      })
+    },
     getUserCardsBalance(data) {
       this.$axios.$get(`/api_client/card_balance?bankNum=${data.number}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
@@ -347,6 +478,32 @@ export default {
       this.$axios.$postForm('/api_client/open_card',openForm).then((resp) => {
         if (resp && resp.code === 0) {
           this.drawer = false
+          this.getClientCurrent()
+        }
+      })
+    },
+    cardRechargeSubmit() {
+      const rechargeForm = {
+        bankCardId: this.cardId,
+        amount: this.cardRecharge.amount
+      }
+      this.$axios.$postForm('/api_client/recharge',rechargeForm).then((resp) => {
+        if (resp && resp.code === 0) {
+          this.drawer2 = false
+          this.getClientCurrent()
+        }
+      })
+    },
+    cardCancelSubmit() {
+      const cancelForm = {
+        userBankCardId: this.cardId
+      }
+      this.$axios.$postForm('/api_client/cancel_card',cancelForm).then((resp) => {
+        if (resp && resp.code === 0) {
+          this.drawer3 = false
+          this.val = false
+          this.getList()
+          this.getClientCurrent()
         }
       })
     },
@@ -356,6 +513,26 @@ export default {
           this.bankCardList = res.content;
         }
       })
+    },
+    rechargeClick(data) {
+      this.drawer2 = true
+      this.cardNum = data.number
+      this.cardId = data.id
+    },
+    cancelClick(data) {
+      this.drawer3 = true
+      this.cardId = data.id
+    },
+    rechargeClose() {
+      this.drawer2 = false
+      this.cardNum = ''
+      this.cardId = ''
+    },
+    cancelClose() {
+      this.drawer3 = false
+      this.cardId = ''
+      this.cardNum = ''
+      this.val = false
     },
     filterProxyListFn(val, update) {
       update(() => {
@@ -436,6 +613,15 @@ export default {
   width: 130px;
   font-size: 15px;
   color: #777986;
+}
+
+.cancel{
+  color: $light-blue;
+
+}
+
+.noCancel{
+  color: #9496A1;
 }
 
 .Ainput {

@@ -12,7 +12,7 @@
             :style="{'min-width':(field.minWidth?field.minWidth:0 )+ 'px', 'max-width':(field.maxWidth?field.maxWidth:0 )+ 'px'}">
           <div class="checkbox-center">
             <q-checkbox size="xs" v-if="selection && index===0" v-model="all" @input="changeAll"/>
-            <span class="header-title full-width" :class="index === columns.length-1 ? 'text-right': 'text-left'" :style="{textAlign: field.fixed}">{{ field.title }}</span>
+            <span class="header-title full-width text-center" :style="{textAlign: field.fixed}">{{ field.title }}</span>
             <div v-if="field.sort" class="flex items-center q-ml-xs">
               <div class="flex column">
                 <q-icon :color="field.sortFlag === 'up'?'positive':''" name="fas fa-caret-up hover-color"
@@ -56,8 +56,7 @@
                 <div class="checkbox-center">
                   <q-checkbox size="xs" v-if="selection && columnsIndex===0 && !hasHeader" v-model="selectList" :val="item"
                               @input="changeCheck"/>
-                  <div class="full-width" v-if="field.slot"
-                      :class="columnsIndex === columns.length-1 ? 'text-right': 'text-left'" :style="{textAlign: field.fixed}">
+                  <div class="full-width text-left" v-if="field.slot" :style="{textAlign: field.fixed}">
                     <slot :name="field.slot" :data="item" :index="index"></slot>
                   </div>
                   <template v-else> {{ item[field.key] }}</template>
