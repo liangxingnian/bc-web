@@ -20,7 +20,7 @@
     </div>
     <div class="row q-col-gutter-lg q-mt-md">
       <div class="col-3" v-for="card in bankCardList" :key="card.id">
-        <w-card :data="card"/>
+        <w-card :data="card" @click="cardClick"/>
       </div>
     </div>
 
@@ -28,8 +28,8 @@
 
     <div class="q-pa-sm bg-white q-mt-lg">
       <div class="row items-center q-mb-sm">
-        <q-input :class="$config.size" outlined dense label="ID" clearable
-                 v-model="queryObj.taskId " style="min-width: 10em"
+        <q-input :class="queryObj.size" outlined dense label="卡号" clearable
+                 v-model="queryObj.number " style="min-width: 10em"
                  class="q-mr-sm q-mb-xs"/>
         <q-select outlined dense label="类型" clearable
                   v-model="queryObj.type" style="min-width: 10em"
@@ -94,7 +94,7 @@
     >
       <q-scroll-area class="fit">
         <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
-          <q-icon name="ti-close" @click="drawer=false" class="flush"></q-icon>
+          <q-icon name="ti-close" @click="drawer=false" class="flush q-mr-lg"></q-icon>
         </div>
         <div class="q-px-md q-py-lg">
           <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">请选择卡头</span>
@@ -140,7 +140,9 @@
             </div>
             <div class="item q-mt-lg">
               <div class="title">预计扣款</div>
-              <span>{{ Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) }} USD</span>
+              <span>{{
+                  Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
+                }} USD</span>
             </div>
             <div class="item q-mt-lg">
               <div class="title">钱包余额</div>
@@ -177,7 +179,8 @@
           </div>
         </div>
         <div class="q-ml-lg q-mt-lg">
-          <q-btn label="开卡" color="light-blue" unelevated @click="openCard(select)" :disabled="!select.organization"></q-btn>
+          <q-btn label="开卡" color="light-blue" unelevated @click="openCard(select)"
+                 :disabled="!select.organization"></q-btn>
         </div>
       </q-scroll-area>
     </q-drawer>
@@ -190,11 +193,11 @@
       overlay
       side="right"
       bordered
-      @hide="this.cardId = '';this.cardNum = ''"
+      @hide="this.cardId = '';this.cardNum = '';this.select={}"
     >
       <q-scroll-area class="fit">
         <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
-          <q-icon name="ti-close" @click="rechargeClose()" class="flush"></q-icon>
+          <q-icon name="ti-close" @click="rechargeClose()" class="flush q-mr-lg"></q-icon>
         </div>
         <div class="q-px-md q-py-lg">
           <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">充值</span>
@@ -205,7 +208,7 @@
           <div class="q-pl-lg q-mt-lg q-ml-lg">
             <div class="item">
               <div class="title">卡号</div>
-              <span>{{this.cardNum}}</span>
+              <span>{{ this.cardNum }}</span>
             </div>
 
             <div class="item q-mt-lg">
@@ -215,7 +218,9 @@
 
             <div class="item q-mt-lg">
               <div class="title">预计扣款</div>
-              <span>{{ Number(cardRecharge.amount) + (Number(cardRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) }} USD</span>
+              <span>{{
+                  Number(cardRecharge.amount) + (Number(cardRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
+                }} USD</span>
             </div>
 
           </div>
@@ -261,11 +266,11 @@
       overlay
       side="right"
       bordered
-      @hide="this.cardId = '';this.cardNum = ''"
+      @hide="this.cardId = '';this.cardNum = '';this.select={}"
     >
       <q-scroll-area class="fit">
         <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
-          <q-icon name="ti-close" @click="cancelClose()" class="flush"></q-icon>
+          <q-icon name="ti-close" @click="cancelClose()" class="flush q-mr-lg"></q-icon>
         </div>
         <div class="q-px-md q-py-lg">
           <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">销卡</span>
@@ -280,12 +285,14 @@
                 <br>
                 2、发起销卡后无法再进行交易，
                 <br>
-                3、发起销卡后无法再收到退款</div>
+                3、发起销卡后无法再收到退款
+              </div>
             </div>
           </div>
           <div class="q-pl-md q-mt-lg">
             <div class="item">
-              <q-checkbox size="30px" :color="val?'light-blue':''" :class="[val?'cancel':'noCancel']" v-model="val" label="我已知晓、如已确认以上信息，请点击左侧小方框"/>
+              <q-checkbox size="30px" :color="val?'light-blue':''" :class="[val?'cancel':'noCancel']" v-model="val"
+                          label="我已知晓、如已确认以上信息，请点击左侧小方框"/>
             </div>
           </div>
 
@@ -449,6 +456,11 @@ export default {
         }
       })
     },
+    cardClick(data) {
+      console.log(data)
+      this.drawer = true
+      this.select = data
+    },
     getUserCardsDetail() {
       this.$axios.$get('/api_client/card_detail', this.queryObj).then(res => {
         if (res && res.code === 0) {
@@ -475,7 +487,7 @@ export default {
         amount: this.openRecharge.amount,
         remark: this.openRecharge.remark
       }
-      this.$axios.$postForm('/api_client/open_card',openForm).then((resp) => {
+      this.$axios.$postForm('/api_client/open_card', openForm).then((resp) => {
         if (resp && resp.code === 0) {
           this.drawer = false
           this.getClientCurrent()
@@ -487,7 +499,7 @@ export default {
         bankCardId: this.cardId,
         amount: this.cardRecharge.amount
       }
-      this.$axios.$postForm('/api_client/recharge',rechargeForm).then((resp) => {
+      this.$axios.$postForm('/api_client/recharge', rechargeForm).then((resp) => {
         if (resp && resp.code === 0) {
           this.drawer2 = false
           this.getClientCurrent()
@@ -498,7 +510,7 @@ export default {
       const cancelForm = {
         userBankCardId: this.cardId
       }
-      this.$axios.$postForm('/api_client/cancel_card',cancelForm).then((resp) => {
+      this.$axios.$postForm('/api_client/cancel_card', cancelForm).then((resp) => {
         if (resp && resp.code === 0) {
           this.drawer3 = false
           this.val = false
@@ -525,13 +537,9 @@ export default {
     },
     rechargeClose() {
       this.drawer2 = false
-      this.cardNum = ''
-      this.cardId = ''
     },
     cancelClose() {
       this.drawer3 = false
-      this.cardId = ''
-      this.cardNum = ''
       this.val = false
     },
     filterProxyListFn(val, update) {
@@ -615,12 +623,12 @@ export default {
   color: #777986;
 }
 
-.cancel{
+.cancel {
   color: $light-blue;
 
 }
 
-.noCancel{
+.noCancel {
   color: #9496A1;
 }
 

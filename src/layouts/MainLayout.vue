@@ -36,7 +36,7 @@
     >
       <q-scroll-area class="fit">
         <div>
-          <span style="font-size: 50px;margin-left: 20px;">LKJ</span>
+          <span style="font-size: 50px;margin-left: 20px;">VCC</span>
           <span class="q-ml-md text-grey">v1.0.0</span>
         </div>
         <q-list class="q-mt-md">

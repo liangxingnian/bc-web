@@ -102,7 +102,7 @@ module.exports = function (/* ctx */) {
         },
         '/@(bc)/**': {
           pathRewrite: {'^/bc': ''},
-          target: `${protocol}://${pmBeServer}`,
+          target: `${protocol}://${whcBeServer}`,
           changeOrigin: true,
           ws: false,
           autoRewrite: true

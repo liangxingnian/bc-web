@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" @click="cardClick">
     <div>
       <b class="text-blue-3" style="font-size: 30px">BIN</b>
       <span style="font-size: 30px">{{data.bin}}</span>
@@ -17,6 +17,11 @@ export default {
     data:{
       default: () => ({})
     }
+  },
+  methods:{
+    cardClick() {
+      this.$emit('click',this.data)
+    },
   }
 }
 </script>
