@@ -1,10 +1,11 @@
 <template>
   <div>
     <template v-for="(route, index) in routes[0].children">
-      <w-link :key="index" :path="route.path" :title="route.meta.title" :icon="route.icon"
+      <w-link :key="index" :path="route.path" :title="route.meta.title" :icon="route.icon" v-if="!route.hide"
               :current="route.path === currentPath">
       </w-link>
     </template>
+    <w-link title="api文档" path="https://www.showdoc.com.cn/apiVcc/10676037554652442" :doc="true"></w-link>
   </div>
 </template>
 

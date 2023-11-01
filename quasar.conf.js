@@ -148,8 +148,8 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `Quasar App`,
-        short_name: `Quasar App`,
+        name: `Vcc System`,
+        short_name: `Vcc System`,
         description: `A Quasar Project`,
         display: 'standalone',
         orientation: 'portrait',

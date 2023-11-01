@@ -153,12 +153,7 @@ export default {
       this.queryObj.taskId = this.$route.query.id
     }
     this.getList()
-    // this.getCurrent()
-    try {
-      this.client = JSON.parse(localStorage.getItem("client_current"))
-    } catch (aa) {
-
-    }
+    this.getClientCurrent()
   },
   methods: {
     getList() {
@@ -167,6 +162,12 @@ export default {
           this.total = res.total
           this.list = res.rows
         }
+      })
+    },
+    getClientCurrent() {
+      this.$axios.$get('/api_client/current', {skipDefault: true}).then(res => {
+        this.client = res.content
+        localStorage.setItem("client_current", JSON.stringify(this.client))
       })
     },
     filterProxyListFn(val, update) {

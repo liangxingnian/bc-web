@@ -36,6 +36,15 @@ const routes = [
           title: '订单'
         },
       },
+      {
+        path: '/card_detail/:id',
+        hide:true,
+        component: () => import('pages/CardDetail.vue'),
+        icon: 'ti-clipboard',
+        meta: {
+          title: '信用卡详情'
+        },
+      },
       // {
       //   path: '/center',
       //   component: () => import('pages/Card.vue'),

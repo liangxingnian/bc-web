@@ -52,7 +52,7 @@
         <div class="flex content-center justify-center" slot="balance" slot-scope="row">
           {{ row.data.balance }}
           <q-icon name="ti-reload" class="flush" size="12px" style="color: #777986"
-                  @click="getUserCardsBalance(row.data)"/>
+                  @click="getUserCardsBalance(row.data, true)"/>
 
         </div>
         <template slot="state" slot-scope="row">
@@ -72,6 +72,7 @@
         </template>
 
         <template slot="action" slot-scope="row">
+          <q-btn flat @click.stop="detailClick2(row.data)">详情</q-btn>
           <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1">充值</q-btn>
           <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1">销卡</q-btn>
         </template>
@@ -304,6 +305,75 @@
       </q-scroll-area>
     </q-drawer>
 
+    <!-- 银行卡详情侧面弹窗-->
+    <q-drawer
+      v-model="drawer4"
+      :width='1100'
+      :breakpoint="500"
+      overlay
+      side="right"
+      bordered
+      @hide="this.cardId = '';this.cardNum = '';this.select={}"
+    >
+      <q-scroll-area class="fit">
+        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="flex justify-between full-width">
+          <b class="q-ml-md" style="font-size: 25px;color: #00bcd4">{{ this.cardDetail.number }}</b>
+          <q-icon name="ti-close" @click="drawer4=false" class="flush q-mr-lg"></q-icon>
+        </div>
+        <div class="q-px-md q-py-lg">
+          <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 22px" class="q-pb-sm">
+            <span class="q-ml-md">卡片信息</span>
+            <span class="q-ml-md" style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">正常</span>
+          </div>
+        </div>
+
+        <div>
+            <span class="q-pl-lg q-mt-lg q-ml-lg" style="font-size: 15px">ID：</span>
+            <b>{{ this.cardDetail.id }}</b>
+          <div class="q-pl-lg q-ml-lg flex">
+            <div>
+              <div class="item q-mt-lg">
+                <div class="title">类型</div>
+                <span>{{ this.cardDetail.organization }}</span>
+              </div>
+
+              <div class="item q-mt-lg">
+                <div class="title">开卡时间</div>
+                <span>{{ this.cardDetail.createTime ? whc.Date.formatDateTime(new Date(this.cardDetail.createTime)) : '-' }}</span>
+              </div>
+
+              <div class="item q-mt-lg">
+                <div class="title">销卡时间</div>
+                <span>{{ this.cardDetail.state === 0 ?this.cardDetail.modifyTime ? whc.Date.formatDateTime(new Date(this.cardDetail.modifyTime)) : '-' :'-'}}</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">备注</div>
+                <span>{{this.cardDetail.remark ? this.cardDetail.remark : '-'}}</span>
+              </div>
+            </div>
+
+            <div style="margin-left: 200px">
+
+              <div class="item q-mt-lg">
+                <div class="title">余额</div>
+                <span>{{ cardBalance }}</span>
+              </div>
+
+              <div class="item q-mt-lg">
+                <div class="title">过期时间</div>
+                <span>{{this.cardDetail.expiryDate}}</span>
+              </div>
+
+              <div class="item q-mt-lg">
+                <div class="title">安全码</div>
+                <span>{{this.cardDetail.cvv}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </q-scroll-area>
+    </q-drawer>
+
   </div>
 </template>
 
@@ -334,12 +404,15 @@ export default {
       drawer: false,
       drawer2: false,
       drawer3: false,
+      drawer4: false,
       val: false,
       select: {},
       getCurrentDate,
       whc: _whc,
       total: 0,
       cardNum: '',
+      cardBalance:'',
+      cardDetail: {},
       cardId: '',
       client: {},
       expense: {},
@@ -457,7 +530,6 @@ export default {
       })
     },
     cardClick(data) {
-      console.log(data)
       this.drawer = true
       this.select = data
     },
@@ -474,10 +546,15 @@ export default {
         localStorage.setItem("client_current", JSON.stringify(this.client))
       })
     },
-    getUserCardsBalance(data) {
+    getUserCardsBalance(data,show) {
       this.$axios.$get(`/api_client/card_balance?bankNum=${data.number}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
-          data.balance = Number(res.content).toFixed(2) + ' USD';
+          if (show){
+            data.balance = Number(res.content).toFixed(2) + ' USD';
+          }else {
+            this.cardBalance = Number(res.content).toFixed(2) + ' USD';
+          }
+
         }
       })
     },
@@ -525,6 +602,15 @@ export default {
           this.bankCardList = res.content;
         }
       })
+    },
+    detailClick(data) {
+      this.cardBalance = '-'
+      this.getUserCardsBalance(data,false)
+      this.drawer4 = true
+      this.cardDetail = data
+    },
+    detailClick2(data) {
+      this.$router.push('/card_detail/'+data.id)
     },
     rechargeClick(data) {
       this.drawer2 = true
