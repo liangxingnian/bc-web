@@ -278,6 +278,7 @@ export default {
   },
   methods: {
     cut(val) {
+      this.list = []
       this.getList(val)
       this.tab = val
     },

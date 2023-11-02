@@ -22,7 +22,6 @@
                   :options="typeList" class="q-mr-sm q-mb-xs"
                   option-value="value" emit-value
                   option-label="label" map-options/>
-        <w-date-picker-second class="q-mr-md q-mb-xs" @on-change="changeDate" ref="datePicker" :hide-hms="true"/>
         <div class="q-mb-xs q-mr-sm">
           <q-btn unelevated class="q-mr-sm" @click="query" label="查询" padding="6px 26px"
                  style="background-color: #6BAAFC; color: #FFFFFF"/>
