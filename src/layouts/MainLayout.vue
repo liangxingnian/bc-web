@@ -1,59 +1,157 @@
 <template>
-  <q-layout view="lHh lpR fFf" class="bg-grey-2">
-    <q-header style="background-color: #fff">
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          color="light-blue"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+  <div>
+    <q-layout view="lHh lpR fFf" class="bg-grey-2">
+      <q-header style="background-color: #fff">
+        <q-toolbar>
+          <q-btn
+            flat
+            dense
+            round
+            icon="menu"
+            aria-label="Menu"
+            color="light-blue"
+            @click="leftDrawerOpen = !leftDrawerOpen"
+          />
 
-        <q-toolbar-title class="text-black">
-        </q-toolbar-title>
+          <q-toolbar-title class="text-black">
+          </q-toolbar-title>
 
-        <q-btn-dropdown no-caps unelevated :label="user && user.name" color="light-blue">
-          <q-list>
-            <q-item clickable v-close-popup @click="logout">
-              <q-item-section>
-                <q-item-label>退出登录</q-item-label>
-              </q-item-section>
-            </q-item>
+          <q-btn-dropdown no-caps unelevated :label="user && user.name" color="light-blue">
+            <q-list>
+              <q-item clickable v-close-popup @click="showExportModal">
+                <q-item-section>
+                  <q-item-label>修改密码</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="logout">
+                <q-item-section>
+                  <q-item-label>退出登录</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-toolbar>
+      </q-header>
+
+      <q-drawer
+        v-model="leftDrawerOpen"
+        show-if-above
+        bordered
+        :width="290"
+        content-class="bg-white"
+      >
+        <q-scroll-area class="fit">
+          <div>
+            <span style="font-size: 50px;margin-left: 20px;">VCC</span>
+            <span class="q-ml-md text-grey">v1.0.0</span>
+          </div>
+          <q-list class="q-mt-md">
+            <w-menu :routes="routes"/>
           </q-list>
-        </q-btn-dropdown>
-      </q-toolbar>
-    </q-header>
+        </q-scroll-area>
+      </q-drawer>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      :width="290"
-      content-class="bg-white"
-    >
-      <q-scroll-area class="fit">
-        <div>
-          <span style="font-size: 50px;margin-left: 20px;">VCC</span>
-          <span class="q-ml-md text-grey">v1.0.0</span>
+      <q-page-container>
+        <div class="q-px-md q-pt-md q-pb-md">
+          <router-view/>
         </div>
-        <q-list class="q-mt-md">
-          <w-menu :routes="routes"/>
-        </q-list>
-      </q-scroll-area>
-    </q-drawer>
+        <div class="text-center view-footer q-pb-md">
+        </div>
+      </q-page-container>
 
-    <q-page-container>
-      <div class="q-px-md q-pt-md q-pb-md">
-        <router-view/>
-      </div>
-      <div class="text-center view-footer q-pb-md">
-      </div>
-    </q-page-container>
+    </q-layout>
 
-  </q-layout>
+
+    <!--    <w-modal ref="exportModal" title="修改密码" @on-ok="submit" min-width="500px">-->
+    <!--      <q-form ref="exportRefs">-->
+
+    <!--        <q-input-->
+    <!--          outlined-->
+    <!--          clear-icon="cancel"-->
+    <!--          :type="isPwd ? 'password' : 'text'"-->
+    <!--          v-model="form.password"-->
+    <!--          dense-->
+    <!--          debounce="500"-->
+    <!--          label="密码"-->
+    <!--          lazy-rules-->
+    <!--          square-->
+    <!--          :rules="[-->
+    <!--                       (val) => val !== null && val !== ''  || '请输入密码'-->
+    <!--                    ]"-->
+    <!--        >-->
+    <!--        </q-input>-->
+
+    <!--        <q-input-->
+    <!--          outlined-->
+    <!--          clear-icon="cancel"-->
+    <!--          :type="isPwd ? 'password' : 'text'"-->
+    <!--          v-model="form.password"-->
+    <!--          dense-->
+    <!--          debounce="500"-->
+    <!--          label="密码"-->
+    <!--          lazy-rules-->
+    <!--          square-->
+    <!--          :rules="[-->
+    <!--                       (val) => val !== null && val !== ''  || '请输入密码'-->
+    <!--                    ]"-->
+    <!--        >-->
+    <!--        </q-input>-->
+    <!--      </q-form>-->
+    <!--    </w-modal>-->
+
+
+    <w-modal ref="modifyLoginPassword" title="修改登录密码" @on-ok="modifyPassword">
+      <q-separator/>
+      <q-tab-panels v-model="tagsName" animated>
+        <!--账号修改密码-->
+        <q-tab-panel name="name">
+          <q-form
+            class="q-gutter-sm"
+            ref="userEditPasswordForm"
+          >
+            <q-input
+              v-model="modify.oldPassword"
+              dense outlined clearable square
+              type="password"
+              lazy-rules
+              :rules="[
+                val => val && val.length > 0 || '请输入旧密码'
+              ]"
+              label="旧密码*"
+            >
+            </q-input>
+            <q-input
+              v-model="modify.password"
+              dense outlined clearable square
+              autocomplete="new-password"
+              type="password"
+              lazy-rules
+              :rules="[
+                val => val && val.length > 0 || '请输入新密码',
+                val => valida.passwordValidation(val) || '密码由6-48个字符组成'
+              ]"
+              label="新密码*"
+            >
+            </q-input>
+            <q-input
+              v-model="modify.twoPassword"
+              dense outlined clearable square
+              autocomplete="new-password"
+              type="password"
+              lazy-rules
+              :rules="[
+                val => val && val.length > 0 || '请再次输入新密码',
+                val => val && (val === modify.password) || '两次密码输入不相同'
+              ]"
+              label="确认新密码*"
+            >
+            </q-input>
+          </q-form>
+        </q-tab-panel>
+      </q-tab-panels>
+    </w-modal>
+  </div>
+
 </template>
 
 <script>
@@ -62,6 +160,7 @@ import WMenu from 'src/components/WMenu'
 import crypt from 'src/morejs/crypt.js'
 import {KJUR} from 'jsrsasign'
 import WLink from 'src/components/WLink'
+import valida from 'src/morejs/clients'
 import {phoneValidation} from 'src/morejs/utils'
 import {mapState} from 'vuex'
 
@@ -74,10 +173,25 @@ export default {
   data() {
     return {
       routes,
+      valida,
       user: null,
       client: null,
       expense: null,
-      leftDrawerOpen: false
+      leftDrawerOpen: false,
+      form: {},
+      tagsName: 'name',
+      modify: {
+        oldPassword: '',
+        password: '',
+        twoPassword: ''
+      },
+      phoneEditPass: {
+        key: '',
+        password: '',
+        twoPassword: '',
+        phoneNumber: '',
+        phoneVerifyCode: ''
+      },
     }
   },
   mounted() {
@@ -113,7 +227,50 @@ export default {
           localStorage.setItem('sessionSecret', '')
           this.$router.push({path: '/login'})
         })
-    }
+    },
+    showExportModal() {
+      this.modify.password = ''
+      this.modify.oldPassword = ''
+      this.modify.twoPassword = ''
+
+      this.$refs.modifyLoginPassword.show()
+    },
+    modifyPassword() {
+      this.$refs.userEditPasswordForm.validate().then(success => {
+        if (success) {
+          this.$axios.$get('/login/public_key').then(res => {
+            this.publicKey = res.content
+            const key = crypt.generateRandomKey()
+            const encryptedKey = crypt.rsaEncrypt(this.publicKey, key)
+            const oldPassword = KJUR.crypto.Util.md5(this.modify.oldPassword)
+            const newPassword = KJUR.crypto.Util.md5(this.modify.password)
+
+            const obj = JSON.stringify({
+              oldPassword: oldPassword,
+              newPassword: newPassword
+            })
+
+            const encrypted3 = crypt.aesEncrypt(key, obj)
+
+            const data = {
+              key: encryptedKey,
+              params: encrypted3
+            }
+            this.$axios.$postForm('/user/edit_password', data).then(res => {
+              if (res && res.code === 0) {
+                this.modify.password = ''
+                this.modify.oldPassword = ''
+                this.modify.twoPassword = ''
+                this.$refs.modifyLoginPassword.hide()
+              }
+            })
+          })
+        }
+      })
+    },
+    tabsClick(e) {
+      this.tagsName = e
+    },
   }
 }
 </script>
