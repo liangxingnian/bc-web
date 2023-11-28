@@ -45,7 +45,7 @@
          </div>
          <div class="grade4"></div>
          <div class="grade flex column items-center">
-           <div class="grade2">{{expense.rechargeFeeAmountRate}}</div>
+           <div class="grade2">{{client.rechargeFeeAmountRate}}</div>
            <div class="grade3">服务费率</div>
          </div>
          <div class="grade4"></div>
@@ -55,7 +55,7 @@
          </div>
          <div class="grade4"></div>
          <div class="grade flex column items-center">
-           <div class="grade2">${{Number(expense.openCardFeeAmount).toFixed(2)}}</div>
+           <div class="grade2">${{Number(client.openCardFeeAmount).toFixed(2)}}</div>
            <div class="grade3">开卡费用</div>
          </div>
        </div>

@@ -133,11 +133,11 @@
           <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
             <div class="item">
               <div class="title">开卡费</div>
-              <span>{{ expense.openCardFeeAmount }} USD</span>
+              <span>{{ select.actualOpenCardPrice }} USD</span>
             </div>
             <div class="item q-mt-lg">
               <div class="title">充值手续费</div>
-              <span>{{ expense.rechargeFeeAmountRate }}</span>
+              <span>{{ select.actualRechargeFeeRate }}</span>
             </div>
             <div class="item q-mt-lg">
               <div class="title">预计扣款</div>
@@ -155,6 +155,20 @@
             <div class="item">
               <div class="title">计划充值</div>
               <q-input class="Ainput"
+                       v-if="select.adapterSign === 'dnk'"
+                       outlined
+                       dense
+                       lazy-rules
+                       :rules="[
+                      (val) => val !== null && val !== ''  || '请输入充值金额',
+                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
+                    ]"
+                       style="display: inline-block"
+                       value="30"
+              >
+              </q-input>
+              <q-input class="Ainput"
+                       v-else
                        outlined
                        dense
                        lazy-rules
@@ -237,6 +251,20 @@
             <div class="item">
               <div class="title">计划充值</div>
               <q-input class="Ainput"
+                       v-if="select.adapterSign === 'dnk'"
+                       outlined
+                       dense
+                       lazy-rules
+                       :rules="[
+                      (val) => val !== null && val !== ''  || '请输入充值金额',
+                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足',
+                    ]"
+                       style="display: inline-block"
+                       value="30"
+              >
+              </q-input>
+              <q-input class="Ainput"
+                       v-else
                        outlined
                        dense
                        lazy-rules
