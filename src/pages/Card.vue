@@ -94,109 +94,101 @@
       @hide="select={}"
     >
       <q-scroll-area class="fit">
-        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
-          <q-icon name="ti-close" @click="drawer=false" class="flush q-mr-lg"></q-icon>
-        </div>
-        <div class="q-px-md q-py-lg">
-          <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">请选择卡头</span>
+        <q-form @submit="openCard(select)">
+          <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
+            <q-icon name="ti-close" @click="drawer=false" class="flush q-mr-lg"></q-icon>
           </div>
-        </div>
-
-        <div class="flex q-ma-lg">
-          <div v-for="card in bankCardList" :key="card.id">
-            <div style="border: 1px solid rgba(0,0,0,0.1); border-radius: 5px" class="q-pa-md q-mr-md q-mb-md">
-              <q-radio dense v-model="select" :val="card" :label="card.bin + ' ' + card.cr" @input="input"/>
-            </div>
-          </div>
-        </div>
-
-        <div v-show="select.organization">
-          <div class="q-pl-lg">
-            <div class="item">
-              <div class="title">状态</div>
-              <span style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px">正常</span>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">币种</div>
-              <span>USD</span>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">类型</div>
-              <span>{{ select.organization }}</span>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">地区</div>
-              <span>{{ select.cr }}</span>
+          <div class="q-px-md q-py-lg">
+            <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span
+              class="q-ml-md">请选择卡头</span>
             </div>
           </div>
 
-          <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
-            <div class="item">
-              <div class="title">开卡费</div>
-              <span>{{ select.actualOpenCardPrice }} USD</span>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">充值手续费</div>
-              <span>{{ select.actualRechargeFeeRate }}</span>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">预计扣款</div>
-              <span>{{
-                  Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
-                }} USD</span>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">钱包余额</div>
-              <span>{{ client.balance }} USD</span>
+          <div class="flex q-ma-lg">
+            <div v-for="card in bankCardList" :key="card.id">
+              <div style="border: 1px solid rgba(0,0,0,0.1); border-radius: 5px" class="q-pa-md q-mr-md q-mb-md">
+                <q-radio dense v-model="select" :val="card" :label="card.bin + ' ' + card.cr" @input="input(card)"/>
+              </div>
             </div>
           </div>
 
-          <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
-            <div class="item">
-              <div class="title">计划充值</div>
-              <q-input class="Ainput"
-                       v-if="select.adapterSign === 'dnk'"
-                       outlined
-                       dense
-                       lazy-rules
-                       :rules="[
+          <div v-show="select.organization">
+            <div class="q-pl-lg">
+              <div class="item">
+                <div class="title">状态</div>
+                <span style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px">正常</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">币种</div>
+                <span>USD</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">类型</div>
+                <span>{{ select.organization }} 信用卡</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">地区</div>
+                <span>{{ select.cr }}</span>
+              </div>
+            </div>
+
+            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+              <div class="item">
+                <div class="title">开卡费</div>
+                <span>{{ Number(select.actualOpenCardPrice).toFixed(2) }} USD</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">充值手续费</div>
+                <span>{{ Number.parseFloat(select.actualRechargeFeeRate) }}%</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">预计扣款</div>
+                <span>{{
+                    Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
+                  }} USD</span>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">钱包余额</div>
+                <span>{{ client.balance }} USD</span>
+              </div>
+            </div>
+
+            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+              <div class="item">
+                <div class="title">计划充值</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         lazy-rules
+                         :rules="[
                       (val) => val !== null && val !== ''  || '请输入充值金额',
+                      (val) => Number(val) >=  minAmount || '最低开卡额度 : $'+minAmount,
                       (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
                     ]"
-                       style="display: inline-block"
-                       value="30"
-              >
-              </q-input>
-              <q-input class="Ainput"
-                       v-else
-                       outlined
-                       dense
-                       lazy-rules
-                       :rules="[
-                      (val) => val !== null && val !== ''  || '请输入充值金额',
-                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
-                    ]"
-                       style="display: inline-block"
-                       v-model="openRecharge.amount"
-              >
-              </q-input>
-            </div>
-            <div class="item q-mt-lg">
-              <div class="title">备注</div>
-              <q-input class="Ainput"
-                       outlined
-                       dense
-                       style="display: inline-block"
-                       v-model="openRecharge.remark"
-              >
-              </q-input>
+                         style="display: inline-block"
+                         v-model="openRecharge.amount"
+                >
+                </q-input>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">备注</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         style="display: inline-block"
+                         v-model="openRecharge.remark"
+                >
+                </q-input>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="q-ml-lg q-mt-lg">
-          <q-btn label="开卡" color="light-blue" unelevated @click="openCard(select)"
-                 :disabled="!select.organization"></q-btn>
-        </div>
+          <div class="q-ml-lg q-mt-lg">
+            <q-btn label="开卡" color="light-blue" unelevated type="submit"
+                   :disabled="!select.organization"></q-btn>
+          </div>
+
+        </q-form>
+
       </q-scroll-area>
     </q-drawer>
 
@@ -251,20 +243,6 @@
             <div class="item">
               <div class="title">计划充值</div>
               <q-input class="Ainput"
-                       v-if="select.adapterSign === 'dnk'"
-                       outlined
-                       dense
-                       lazy-rules
-                       :rules="[
-                      (val) => val !== null && val !== ''  || '请输入充值金额',
-                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足',
-                    ]"
-                       style="display: inline-block"
-                       value="30"
-              >
-              </q-input>
-              <q-input class="Ainput"
-                       v-else
                        outlined
                        dense
                        lazy-rules
@@ -351,13 +329,14 @@
         <div class="q-px-md q-py-lg">
           <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 22px" class="q-pb-sm">
             <span class="q-ml-md">卡片信息</span>
-            <span class="q-ml-md" style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">正常</span>
+            <span class="q-ml-md"
+                  style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">正常</span>
           </div>
         </div>
 
         <div>
-            <span class="q-pl-lg q-mt-lg q-ml-lg" style="font-size: 15px">ID：</span>
-            <b>{{ this.cardDetail.id }}</b>
+          <span class="q-pl-lg q-mt-lg q-ml-lg" style="font-size: 15px">ID：</span>
+          <b>{{ this.cardDetail.id }}</b>
           <div class="q-pl-lg q-ml-lg flex">
             <div>
               <div class="item q-mt-lg">
@@ -367,16 +346,20 @@
 
               <div class="item q-mt-lg">
                 <div class="title">开卡时间</div>
-                <span>{{ this.cardDetail.createTime ? whc.Date.formatDateTime(new Date(this.cardDetail.createTime)) : '-' }}</span>
+                <span>{{
+                    this.cardDetail.createTime ? whc.Date.formatDateTime(new Date(this.cardDetail.createTime)) : '-'
+                  }}</span>
               </div>
 
               <div class="item q-mt-lg">
                 <div class="title">销卡时间</div>
-                <span>{{ this.cardDetail.state === 0 ?this.cardDetail.modifyTime ? whc.Date.formatDateTime(new Date(this.cardDetail.modifyTime)) : '-' :'-'}}</span>
+                <span>{{
+                    this.cardDetail.state === 0 ? this.cardDetail.modifyTime ? whc.Date.formatDateTime(new Date(this.cardDetail.modifyTime)) : '-' : '-'
+                  }}</span>
               </div>
               <div class="item q-mt-lg">
                 <div class="title">备注</div>
-                <span>{{this.cardDetail.remark ? this.cardDetail.remark : '-'}}</span>
+                <span>{{ this.cardDetail.remark ? this.cardDetail.remark : '-' }}</span>
               </div>
             </div>
 
@@ -389,12 +372,12 @@
 
               <div class="item q-mt-lg">
                 <div class="title">过期时间</div>
-                <span>{{this.cardDetail.expiryDate}}</span>
+                <span>{{ this.cardDetail.expiryDate }}</span>
               </div>
 
               <div class="item q-mt-lg">
                 <div class="title">安全码</div>
-                <span>{{this.cardDetail.cvv}}</span>
+                <span>{{ this.cardDetail.cvv }}</span>
               </div>
             </div>
           </div>
@@ -434,12 +417,13 @@ export default {
       drawer3: false,
       drawer4: false,
       val: false,
+      minAmount: 10,
       select: {},
       getCurrentDate,
       whc: _whc,
       total: 0,
       cardNum: '',
-      cardBalance:'',
+      cardBalance: '',
       cardDetail: {},
       cardId: '',
       client: {},
@@ -544,7 +528,13 @@ export default {
     this.getAllBankCards()
   },
   methods: {
-    input(val) {
+    input(card) {
+      if (card.adapterSign === 'dnk') {
+        this.openRecharge.amount = 30
+      } else {
+        this.openRecharge.amount = 10
+      }
+      this.minAmount = this.openRecharge.amount
     },
     getList() {
       this.$axios.$get('/api_client/user_bank_card', this.queryObj).then(res => {
@@ -558,6 +548,12 @@ export default {
       })
     },
     cardClick(data) {
+      if (data.adapterSign === 'dnk') {
+        this.openRecharge.amount = 30
+      } else {
+        this.openRecharge.amount = 10
+      }
+      this.minAmount = this.openRecharge.amount
       this.drawer = true
       this.select = data
     },
@@ -574,12 +570,12 @@ export default {
         localStorage.setItem("client_current", JSON.stringify(this.client))
       })
     },
-    getUserCardsBalance(data,show) {
+    getUserCardsBalance(data, show) {
       this.$axios.$get(`/api_client/card_balance?bankNum=${data.number}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
-          if (show){
+          if (show) {
             data.balance = Number(res.content).toFixed(2) + ' USD';
-          }else {
+          } else {
             this.cardBalance = Number(res.content).toFixed(2) + ' USD';
           }
 
@@ -633,14 +629,20 @@ export default {
     },
     detailClick(data) {
       this.cardBalance = '-'
-      this.getUserCardsBalance(data,false)
+      this.getUserCardsBalance(data, false)
       this.drawer4 = true
       this.cardDetail = data
     },
     detailClick2(data) {
-      this.$router.push('/card_detail/'+data.id)
+      this.$router.push('/card_detail/' + data.id)
     },
     rechargeClick(data) {
+      if (data.adapterSign === 'dnk') {
+        this.cardRecharge.amount = 30
+      } else {
+        this.cardRecharge.amount = 10
+      }
+      this.minAmount = this.openRecharge.amount
       this.drawer2 = true
       this.cardNum = data.number
       this.cardId = data.id
