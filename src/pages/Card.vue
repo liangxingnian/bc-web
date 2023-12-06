@@ -24,14 +24,14 @@
       </div>
     </div>
 
-    <div class="text-bold q-mt-lg" style="color: cornflowerblue;font-size: 30px">My Cards</div>
+    <div class="text-bold q-mt-lg" style="color: cornflowerblue;font-size: 30px">卡片列表</div>
 
     <div class="q-pa-sm bg-white q-mt-lg">
       <div class="row items-center q-mb-sm">
-        <q-input :class="queryObj.size" outlined dense label="卡号" clearable
+        <q-input :class="queryObj.size" outlined dense label="输入要搜索的卡号" clearable
                  v-model="queryObj.number " style="min-width: 10em"
                  class="q-mr-sm q-mb-xs"/>
-        <q-select outlined dense label="类型" clearable
+        <q-select outlined dense label="输入要搜索的状态" clearable
                   v-model="queryObj.type" style="min-width: 10em"
                   :options="stateList" class="q-mr-sm q-mb-xs"
                   option-value="value" emit-value
@@ -448,7 +448,7 @@ export default {
       stateList: [
         {
           value: 1,
-          label: '激活',
+          label: '有效卡',
           color: '#b14fa2'
         },
         {
@@ -573,12 +573,17 @@ export default {
     getUserCardsBalance(data, show) {
       this.$axios.$get(`/api_client/card_balance?bankNum=${data.number}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
+          if (res.content === '请重新获取余额') {
+            this.$notify.error("查询频繁")
+            return;
+          }
           if (show) {
             data.balance = Number(res.content).toFixed(2) + ' USD';
           } else {
             this.cardBalance = Number(res.content).toFixed(2) + ' USD';
           }
-
+        } else {
+          this.$notify.error("查询频繁")
         }
       })
     },
@@ -617,6 +622,8 @@ export default {
           this.val = false
           this.getList()
           this.getClientCurrent()
+        }else{
+          this.$notify.error("查询频繁，请稍后再重新发起销卡")
         }
       })
     },

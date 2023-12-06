@@ -1,20 +1,25 @@
 <template>
   <div>
-    <q-card class="my-card bg-white q-pa-sm" style="width: 600px">
+    <q-card class="my-card bg-white q-pa-sm" style="width: 300px">
       <q-card-section>
-        <div class="text-bold" style="color: cornflowerblue;font-size: 30px">USD</div>
+        <div class="flex">
+          <q-img :src="UsdImg" style="height: 45px;width: 45px"></q-img>
+          <div class="q-ml-sm">
+            <div style="font-weight: 500;font-size: 18px">{{ client.balance }} USD</div>
+            <div style="color: rgba(0,0,0,0.5)">美元</div>
+          </div>
+        </div>
       </q-card-section>
 
-      <q-separator dark />
+      <q-separator dark/>
 
       <q-card-actions>
-        <div class="text-right full-width"><span style="font-size: 30px">{{client.balance}}</span></div>
       </q-card-actions>
     </q-card>
 
     <div class="q-pa-sm bg-white q-mt-lg">
       <div class="row items-center q-mb-sm">
-        <q-input :class="$config.size" outlined dense label="ID" clearable
+        <q-input :class="$config.size" outlined dense label="流水号" clearable
                  v-model="queryObj.taskId " style="min-width: 10em"
                  class="q-mr-sm q-mb-xs"/>
         <q-select outlined dense label="类型" clearable
@@ -22,6 +27,7 @@
                   :options="typeList" class="q-mr-sm q-mb-xs"
                   option-value="value" emit-value
                   option-label="label" map-options/>
+        <w-date-picker-second class="q-mr-md q-mb-xs" @on-change="changeDate" ref="datePicker" :hide-hms="true" :scope="180"/>
         <div class="q-mb-xs q-mr-sm">
           <q-btn unelevated class="q-mr-sm" @click="query" label="查询" padding="6px 26px"
                  style="background-color: #6BAAFC; color: #FFFFFF"/>
@@ -38,7 +44,7 @@
           <span v-html="matchType(row.data.type)"></span>
         </template>
         <template slot="amount" slot-scope="row">
-          {{ row.data.amount ? row.data.amount : '-' }}
+          {{ row.data.amount ? row.data.amount : '-' }} USD
         </template>
         <template slot="applyBalance" slot-scope="row">
           {{ row.data.applyBalance ? row.data.applyBalance : '-' }}
@@ -62,6 +68,7 @@ import WEmpty from "src/components/WEmpty"
 import WDatePickerSecond from "src/components/WDatePickerSecond";
 import {getCurrentDate} from "src/morejs/utils"
 import {_whc} from "src/morejs/_whc";
+import UsdImg from "src/assets/USD.svg";
 
 export default {
   name: "register_List",
@@ -73,6 +80,7 @@ export default {
   },
   data() {
     return {
+      UsdImg,
       getCurrentDate,
       whc: _whc,
       total: 0,
@@ -89,17 +97,17 @@ export default {
         {
           value: -1,
           label: '开卡支付',
-          color: '#b14fa2'
+          color: 'red'
         },
         {
           value: 1,
-          label: '开卡退款',
-          color: '#807903'
+          label: '订单退款',
+          color: '#3bbf79'
         },
         {
           value: -2,
           label: '充值支付',
-          color: '#3bbf79'
+          color: 'red'
         },
         {
           value: 2,
@@ -114,7 +122,13 @@ export default {
         {
           value: 5,
           label: '修正',
-          color: '#559448'
+          color: 'red'
+        }
+        ,
+        {
+          value: 88,
+          label: '销卡退款',
+          color: '#3bbf79'
         }
       ],
       list: [],

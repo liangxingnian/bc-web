@@ -1,11 +1,12 @@
 <template>
   <q-page>
     <div class="flex content-center">
-      <div class="adv">
-        <q-icon name="ti-github" size="40px" color="white" style="margin-top: 20px"/>
-      </div>
-      <div style="font-size: 30px" class="content-center q-ml-md"><b>{{ user.name }}</b>
-        <div style="font-size: 22px">余额 : {{ client.balance }} USD</div>
+      <span class="mdi mdi-account-circle" style="font-size: 100px;color: #00bcd4"></span>
+      <div style="font-size: 22px" class="flex content-center q-ml-md">
+        <div>
+          账户 : <b>{{ user.name }}</b>
+          <div style="font-size: 22px">余额 : {{ client.balance }} USD</div>
+        </div>
       </div>
     </div>
     <div class="tip">
@@ -41,7 +42,6 @@
        <div class="flex justify-between" style="padding: 20px 80px">
          <div class="grade flex column items-center">
            <div class="grade2">VIP商户</div>
-           <div class="grade3">套餐到期时间:2024-12-30</div>
          </div>
          <div class="grade4"></div>
          <div class="grade flex column items-center">

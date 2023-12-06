@@ -41,9 +41,8 @@
         content-class="bg-white"
       >
         <q-scroll-area class="fit">
-          <div>
-            <span style="font-size: 50px;margin-left: 20px;">VCC</span>
-            <span class="q-ml-md text-grey">v1.0.0</span>
+          <div class="text-center q-mt-md">
+            <img :src="vccImg" width="100" />
           </div>
           <q-list class="q-mt-md">
             <w-menu :routes="routes"/>
@@ -161,6 +160,7 @@ import crypt from 'src/morejs/crypt.js'
 import {KJUR} from 'jsrsasign'
 import WLink from 'src/components/WLink'
 import valida from 'src/morejs/clients'
+import vccImg from 'src/assets/vcc.png'
 import {phoneValidation} from 'src/morejs/utils'
 import {mapState} from 'vuex'
 
@@ -172,6 +172,7 @@ export default {
   },
   data() {
     return {
+      vccImg,
       routes,
       valida,
       user: null,

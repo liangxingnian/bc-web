@@ -1,15 +1,21 @@
 <template>
   <div>
+    <div class="text-center">
+      <img :src="sImg" style="height: 60px"/>
+    </div>
     <div class="login-wrapper">
-      <q-form @submit="onSubmit" ref="loginForm">
+      <b style="font-size: 25px">
+        登录
+      </b>
+      <q-form @submit="onSubmit" ref="loginForm" class="q-mt-md">
         <q-input
           outlined
           v-model="form.identifier"
           dense
-          label="用户名"
+          label="账户"
           lazy-rules
           :rules="[
-                      (val) => val !== null && val !== ''  || '请输入用户名'
+                      (val) => val !== null && val !== ''  || '请输入账户'
                     ]"
         >
         </q-input>
@@ -69,11 +75,13 @@
 <script>
 import crypt from 'src/morejs/crypt'
 import {KJUR} from 'jsrsasign'
+import sImg from 'assets/vcc.png'
 
 export default {
   name: 'Login',
   data() {
     return {
+      sImg,
       obj: {},
       phoneCaptchaFlag: false,
       form: {},
@@ -164,6 +172,7 @@ export default {
   padding: 50px;
   border-radius: 5px;
   max-width: 400px;
-  margin: 40px auto;
+  margin: 18px auto;
+  border: 1px solid rgba(0,0,0,0.2);
 }
 </style>

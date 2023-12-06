@@ -2,14 +2,14 @@
   <a href="https://www.showdoc.com.cn/apiVcc/10676037554652442" target="_blank" class="item"  v-if="doc">
     <div class="flex content-center">
       <q-icon name="ti-text" class="q-mr-sm" style="margin-top: 2px"/>
-      <span>api文档</span>
+      <span style="font-size: 16px">api文档</span>
       <slot></slot>
     </div>
   </a>
   <router-link :to="path" class="item" :class="current?'select':''" v-else>
     <div class="flex content-center">
       <q-icon v-if="icon" :name="icon" class="q-mr-sm" style="margin-top: 2px"/>
-      <span>{{ title }}</span>
+      <span style="font-size: 16px">{{ title }}</span>
       <slot></slot>
     </div>
   </router-link>

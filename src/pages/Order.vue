@@ -30,7 +30,7 @@
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="open_card">
           <div class="row items-center q-mb-sm">
-            <q-input :class="$config.size" outlined dense label="ID" clearable
+            <q-input :class="$config.size" outlined dense label="流水号" clearable
                      v-model="queryObj.id " style="min-width: 10em"
                      class="q-mr-sm q-mb-xs"/>
             <q-select outlined dense label="状态" clearable
@@ -71,7 +71,7 @@
 
         <q-tab-panel name="recharge">
           <div class="row items-center q-mb-sm">
-            <q-input :class="$config.size" outlined dense label="ID" clearable
+            <q-input :class="$config.size" outlined dense label="流水号" clearable
                      v-model="queryObj.id " style="min-width: 10em"
                      class="q-mr-sm q-mb-xs"/>
             <q-select outlined dense label="状态" clearable
