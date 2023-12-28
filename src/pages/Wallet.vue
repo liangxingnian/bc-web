@@ -9,6 +9,9 @@
             <div style="color: rgba(0,0,0,0.5)">美元</div>
           </div>
         </div>
+        <div class="float-right">
+          <q-btn color="light-blue" @click="recharge">充值</q-btn>
+        </div>
       </q-card-section>
 
       <q-separator dark/>
@@ -17,7 +20,9 @@
       </q-card-actions>
     </q-card>
 
-    <div class="q-pa-sm bg-white q-mt-lg">
+    <div class="text-bold q-mt-lg" style="color: cornflowerblue;font-size: 20px">钱包流水</div>
+
+    <div class="q-pa-sm bg-white">
       <div class="row items-center q-mb-sm">
         <q-input :class="$config.size" outlined dense label="流水号" clearable
                  v-model="queryObj.taskId " style="min-width: 10em"
@@ -204,6 +209,9 @@ export default {
         registerId: ''
       }
       this.getList()
+    },
+    recharge() {
+      this.$notify.error("请联系在线客服充值！")
     },
     matchType(state) {
       for (let item of this.typeList) {
