@@ -328,7 +328,7 @@ export default {
         clientId: '',
         registerId: ''
       }
-      this.getList()
+      this.getList(this.tab)
     },
     matchState(state) {
       for (let item of this.stateList) {
@@ -356,12 +356,12 @@ export default {
     },
     pageNumberChange(current) {
       this.queryObj.pageNumber = current
-      this.getList()
+      this.getList(this.tab)
     },
     pageSizeChange(current) {
       this.queryObj.pageNumber = 1
       this.queryObj.pageSize = current
-      this.getList()
+      this.getList(this.tab)
     }
   }
 }

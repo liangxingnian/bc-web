@@ -113,45 +113,61 @@
           </div>
 
           <div v-show="select.organization">
-            <div class="q-pl-lg">
-              <div class="item">
-                <div class="title">状态</div>
-                <span style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px">正常</span>
+            <div class="flex no-wrap">
+              <div style="width: 40%">
+                <div class="q-pl-lg">
+                  <div class="item">
+                    <div class="title">状态</div>
+                    <span
+                      style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px">正常</span>
+                  </div>
+                  <div class="item q-mt-lg">
+                    <div class="title">币种</div>
+                    <span>USD</span>
+                  </div>
+                  <div class="item q-mt-lg">
+                    <div class="title">类型</div>
+                    <span>{{ select.organization }} 信用卡</span>
+                  </div>
+                  <div class="item q-mt-lg">
+                    <div class="title">地区</div>
+                    <span>{{ select.cr }}</span>
+                  </div>
+                </div>
+
+                <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+                  <div class="item">
+                    <div class="title">开卡费</div>
+                    <span>{{ Number(select.actualOpenCardPrice).toFixed(2) }} USD</span>
+                  </div>
+                  <div class="item q-mt-lg">
+                    <div class="title">充值手续费</div>
+                    <span>{{ Number.parseFloat(select.actualRechargeFeeRate) }}%</span>
+                  </div>
+                  <div class="item q-mt-lg">
+                    <div class="title">预计扣款</div>
+                    <span>{{
+                        Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
+                      }} USD</span>
+                  </div>
+                  <div class="item q-mt-lg">
+                    <div class="title">钱包余额</div>
+                    <span>{{ client.balance }} USD</span>
+                  </div>
+                </div>
               </div>
-              <div class="item q-mt-lg">
-                <div class="title">币种</div>
-                <span>USD</span>
+
+              <div style="word-break: break-all;width: 50%">
+                <template v-if="select.description === 'photo'">
+                  <img src="/success.png" width="120%">
+                </template>
+                <template v-else>
+                  <div v-html="select.description"></div>
+                </template>
               </div>
-              <div class="item q-mt-lg">
-                <div class="title">类型</div>
-                <span>{{ select.organization }} 信用卡</span>
-              </div>
-              <div class="item q-mt-lg">
-                <div class="title">地区</div>
-                <span>{{ select.cr }}</span>
-              </div>
+
             </div>
 
-            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
-              <div class="item">
-                <div class="title">开卡费</div>
-                <span>{{ Number(select.actualOpenCardPrice).toFixed(2) }} USD</span>
-              </div>
-              <div class="item q-mt-lg">
-                <div class="title">充值手续费</div>
-                <span>{{ Number.parseFloat(select.actualRechargeFeeRate) }}%</span>
-              </div>
-              <div class="item q-mt-lg">
-                <div class="title">预计扣款</div>
-                <span>{{
-                    Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
-                  }} USD</span>
-              </div>
-              <div class="item q-mt-lg">
-                <div class="title">钱包余额</div>
-                <span>{{ client.balance }} USD</span>
-              </div>
-            </div>
 
             <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
               <div class="item">
@@ -432,6 +448,12 @@ export default {
         amount: 10,
         remark: ''
       },
+      description:{
+        '440872|451946|485997|556371':`推荐在Facebook、Google、Telegram、TikTok、Amazon、PayPal、Apple、TWITTER、Linked、Shopify、Walmart、YouTube、Alibaba、eBay、TAOBAO、Alipay、RISER、viber、Infobip、AliExpress等场景上付款。
+                <br>
+                <br> 警告：该卡BIN禁止在Steam、WALMART、Uber、Foodpanda这4个场景上交易使用，如违反发卡行严令禁止的交易场景将强制注销该卡。`
+
+      },
       cardRecharge: {
         amount: 10,
         remark: ''
@@ -622,7 +644,7 @@ export default {
           this.val = false
           this.getList()
           this.getClientCurrent()
-        }else{
+        } else {
           this.$notify.error("查询频繁，请稍后再重新发起销卡")
         }
       })

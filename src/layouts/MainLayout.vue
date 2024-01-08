@@ -149,6 +149,7 @@
         </q-tab-panel>
       </q-tab-panels>
     </w-modal>
+    <a target="_blank" href="https://t.me/LKJ118"><img style="position: fixed;right: 20px;bottom: 20px" src="/tgicon.svg" width="40px"/></a>
   </div>
 
 </template>
