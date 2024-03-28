@@ -14,12 +14,12 @@
            class="justify-between full-width">
         <span class="q-ml-md">卡片信息</span>
         <span class="q-ml-md"
-              style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">{{this.cardDetail.state ===1?'正常':'销卡'}}</span>
+              style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">{{ this.cardDetail.state === 1 ? '正常' : '销卡' }}</span>
       </div>
 
       <div class="q-mt-lg">
-        <span class="q-pl-lg" style="font-size: 15px;">ID：</span>
-        <b>{{ this.cardDetail.id }}</b>
+        <!--        <span class="q-pl-lg" style="font-size: 15px;">ID：</span>-->
+        <!--        <b>{{ this.cardDetail.id }}</b>-->
         <div class="q-pl-lg flex">
           <div>
             <div class="item q-mt-lg">
@@ -36,7 +36,9 @@
 
             <div class="item q-mt-lg">
               <div class="title">销卡时间</div>
-              <b>{{ this.cardDetail.state === 0 ? this.cardDetail.modifyTime ? whc.Date.formatDateTime(new Date(this.cardDetail.modifyTime)) : '-' : '-' }}</b>
+              <b>{{
+                  this.cardDetail.state === 0 ? this.cardDetail.modifyTime ? whc.Date.formatDateTime(new Date(this.cardDetail.modifyTime)) : '-' : '-'
+                }}</b>
             </div>
             <div class="item q-mt-lg">
               <div class="title">备注</div>
@@ -59,6 +61,57 @@
             <div class="item q-mt-lg">
               <div class="title">安全码</div>
               <b>{{ this.cardDetail.cvv }}</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-pa-sm bg-white q-mt-lg"
+         v-if="this.cardDetail.adapterSign === 'ppay'||this.cardDetail.adapterSign === 'vm-card'">
+      <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2);font-size: 22px"
+           class="justify-between full-width">
+        <span class="q-ml-md">地址信息</span>
+        <span class="q-ml-md"
+              style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px"
+              @click="showAddNewModal(cardDetail.addressMv)" v-if="this.cardDetail.adapterSign === 'ppay'">修改</span>
+      </div>
+
+      <div class="q-mt-lg">
+        <div class="q-pl-lg flex">
+          <div>
+            <div class="item q-mt-lg">
+              <div class="title">姓</div>
+              <b>{{ this.cardDetail.addressMv.lastName }}</b>
+            </div>
+
+            <div class="item q-mt-lg">
+              <div class="title">街道地址</div>
+              <b>{{ this.cardDetail.addressMv.street }}</b>
+            </div>
+
+            <div class="item q-mt-lg">
+              <div class="title">城市</div>
+              <b>{{ this.cardDetail.addressMv.city }}</b>
+            </div>
+
+          </div>
+
+          <div style="margin-left: 200px">
+
+            <div class="item q-mt-lg">
+              <div class="title">名</div>
+              <b>{{ this.cardDetail.addressMv.firstName }}</b>
+            </div>
+
+            <div class="item q-mt-lg">
+              <div class="title">洲</div>
+              <b>{{ this.cardDetail.addressMv.state }}</b>
+            </div>
+
+            <div class="item q-mt-lg">
+              <div class="title">邮编</div>
+              <b>{{ this.cardDetail.addressMv.zipCode }}</b>
             </div>
           </div>
         </div>
@@ -130,6 +183,52 @@
       <w-page v-if="list.length" ref="page" :current="queryObj.pageNumber" :total="total" @on-change="pageNumberChange"
               @on-page-size-change="pageSizeChange"/>
     </div>
+
+    <w-modal ref="addNewModal" title="修改地址" @on-ok="editAddressSubmit" min-width="500px">
+      <q-form ref="addNewAccountRefs">
+        <q-input v-model="addressObj.street" clearable dense outlined
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入街道地址'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">街道地址：</div>
+          </template>
+        </q-input>
+        <q-input v-model="addressObj.state" clearable dense outlined
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入洲'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">洲：</div>
+          </template>
+        </q-input>
+        <q-input v-model="addressObj.city" clearable dense outlined
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入城市'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">城市：</div>
+          </template>
+        </q-input>
+
+        <q-input v-model="addressObj.zipCode" clearable dense outlined
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入邮编'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">邮编：</div>
+          </template>
+        </q-input>
+      </q-form>
+    </w-modal>
   </div>
 
 </template>
@@ -163,6 +262,7 @@ export default {
       crList: [],
       cardBalance: '',
       addNewObj: {},
+      addressObj: {},
       queryObj: {
         pageNumber: 1,
         pageSize: 10
@@ -289,6 +389,28 @@ export default {
           this.list = res.rows
         }
       })
+    },
+
+    showAddNewModal(address) {
+      this.$refs.addNewModal.show()
+      this.addressObj = {
+        city: address.city,
+        street: address.street,
+        zipCode: address.zipCode,
+        state: address.state,
+      }
+    },
+
+    editAddressSubmit() {
+      this.$axios.$postForm(`/api_client/${this.$route.params.id}/address`, this.addressObj).then(res => {
+        if (res && res.code === 0) {
+          this.$notify.success('成功')
+          this.addressObj = {}
+          this.$refs.addNewModal.hide()
+          this.getUserCardsDetail()
+        }
+      })
+
     },
 
     getUserCardsDetail() {

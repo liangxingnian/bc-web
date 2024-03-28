@@ -5,12 +5,12 @@
         <div class="flex">
           <q-img :src="UsdImg" style="height: 45px;width: 45px"></q-img>
           <div class="q-ml-sm">
-            <div style="font-weight: 500;font-size: 18px">{{ client.balance }} USD</div>
+            <div style="font-weight: 500;font-size: 18px">{{ client.balance }} USDT</div>
             <div style="color: rgba(0,0,0,0.5)">美元</div>
           </div>
         </div>
         <div class="float-right">
-          <q-btn color="light-blue" @click="recharge">充值</q-btn>
+          <q-btn color="light-blue" @click="rechargeClick">充值</q-btn>
         </div>
       </q-card-section>
 
@@ -32,7 +32,8 @@
                   :options="typeList" class="q-mr-sm q-mb-xs"
                   option-value="value" emit-value
                   option-label="label" map-options/>
-        <w-date-picker-second class="q-mr-md q-mb-xs" @on-change="changeDate" ref="datePicker" :hide-hms="true" :scope="180"/>
+        <w-date-picker-second class="q-mr-md q-mb-xs" @on-change="changeDate" ref="datePicker" :hide-hms="true"
+                              :scope="180"/>
         <div class="q-mb-xs q-mr-sm">
           <q-btn unelevated class="q-mr-sm" @click="query" label="查询" padding="6px 26px"
                  style="background-color: #6BAAFC; color: #FFFFFF"/>
@@ -62,8 +63,43 @@
       <w-page v-if="list.length" ref="page" :current="queryObj.pageNumber" :total="total" @on-change="pageNumberChange"
               @on-page-size-change="pageSizeChange"/>
     </div>
-  </div>
 
+    <w-modal ref="addNewModal" title="USDT充值" @on-ok="recharge" min-width="500px">
+      <q-form class="q-gutter-sm" ref="addNewAccountRefs">
+        <q-input v-model="dataForm.amount"
+                 dense outlined clearable square
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入充值金额',
+                  (val) => 10 <  Number(val) || '最低充值金额 10 USDT'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">输入充值金额：</div>
+          </template>
+        </q-input>
+      </q-form>
+    </w-modal>
+
+    <w-modal ref="fundModal" title="USDT充值" :show-button="false">
+
+      <div>1. 仅接受<span style="color: red">USDT (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
+      <div>2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span style="color: red">0.3%</span> ，转账成功后将扣除手续费并入账至您的账户余额。</div>
+      <div>3. 最低充值金额10，低于10系统不处理入账，需充值满10后系统自动入账。</div>
+      <div>4. 系统自动确认到账，确认时间约<span style="color: red">10分钟</span>，超过30分钟未入账，可联系在线客服查询。</div>
+      <div>5. 请<span style="color: red">仔细核对转账地址</span>，如由于剪切板内容被篡改导致转账地址错误，我司不承担损失。</div>
+      <br>
+      <div>请往已给地址发送以下金额以完成余额充值，此次充值完成会在余额内增加 <span
+        style="color: red">{{ this.dataForm.amount }}</span> USDT
+      </div>
+      <br>
+      <div>付款金额 (点击复制) : <span class="text" @click="copy(fundForm.amount)"
+                                       style="color: #26A69A">{{ this.fundForm.amount }}</span> （付款金额包括小数点）</div>
+      <div>付款地址 (点击复制) : <span class="text" @click="copy(fundForm.address)"
+                                       style="color: #00bcd4">{{ this.fundForm.address }}</span></div>
+    </w-modal>
+
+  </div>
 </template>
 
 <script>
@@ -71,9 +107,11 @@ import WTable from "src/components/WTable"
 import WPage from "src/components/WPage"
 import WEmpty from "src/components/WEmpty"
 import WDatePickerSecond from "src/components/WDatePickerSecond";
-import {getCurrentDate} from "src/morejs/utils"
+import {getCurrentDate, copyText} from "src/morejs/utils"
 import {_whc} from "src/morejs/_whc";
 import UsdImg from "src/assets/USD.svg";
+import crypt from "src/morejs/crypt";
+import {KJUR} from "jsrsasign";
 
 export default {
   name: "register_List",
@@ -86,6 +124,7 @@ export default {
   data() {
     return {
       UsdImg,
+      tab: 'trade',
       getCurrentDate,
       whc: _whc,
       total: 0,
@@ -93,6 +132,14 @@ export default {
       proxyList: [],
       crList: [],
       allCrList: [],
+      actualAmount: {},
+      dataForm: {
+        amount: null,
+      },
+      fundForm: {
+        amount: null,
+        address: null,
+      },
       addNewObj: {},
       queryObj: {
         pageNumber: 1,
@@ -197,6 +244,12 @@ export default {
       this.queryObj.fromDate = date.from
       this.queryObj.toDate = date.to
     },
+    copy(code) {
+      console.log(code)
+      copyText(code, () => {
+        this.$notify.success('复制成功')
+      })
+    },
     query() {
       this.queryObj.pageNumber = 1
       this.getList()
@@ -210,8 +263,25 @@ export default {
       }
       this.getList()
     },
+    rechargeClick() {
+      this.$refs.addNewModal.show()
+    },
     recharge() {
-      this.$notify.error("请联系在线客服充值！")
+      this.$refs.addNewAccountRefs.validate().then(success => {
+        if (success){
+          const rechargeForm = {
+            amount: this.dataForm.amount,
+          }
+          this.$axios.$postForm('/api_client/auto_fund', rechargeForm).then((resp) => {
+            if (resp && resp.code === 0) {
+              this.$refs.addNewModal.hide()
+              this.fundForm.amount = resp.content.amount
+              this.fundForm.address = resp.content.address
+              this.$refs.fundModal.show()
+            }
+          })
+        }
+      })
     },
     matchType(state) {
       for (let item of this.typeList) {
@@ -247,5 +317,9 @@ export default {
   font-size: 14px;
   width: 120px;
   text-align: right;
+}
+
+.text:hover {
+  cursor: pointer;
 }
 </style>

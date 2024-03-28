@@ -32,7 +32,7 @@
                  v-model="queryObj.number " style="min-width: 10em"
                  class="q-mr-sm q-mb-xs"/>
         <q-select outlined dense label="输入要搜索的状态" clearable
-                  v-model="queryObj.type" style="min-width: 10em"
+                  v-model="queryObj.state" style="min-width: 10em"
                   :options="stateList" class="q-mr-sm q-mb-xs"
                   option-value="value" emit-value
                   option-label="label" map-options/>
@@ -51,7 +51,7 @@
         </template>
         <div class="flex content-center justify-center" slot="balance" slot-scope="row">
           {{ row.data.balance }}
-          <q-icon name="ti-reload" class="flush" size="12px" style="color: #777986"
+          <q-icon v-if="row.data.state===1" name="ti-reload" class="flush" size="12px" style="color: #777986"
                   @click="getUserCardsBalance(row.data, true)"/>
 
         </div>
@@ -72,7 +72,7 @@
         </template>
 
         <template slot="action" slot-scope="row">
-          <q-btn flat @click.stop="detailClick2(row.data)">详情</q-btn>
+          <q-btn flat @click.stop="detailClick2(row.data)" v-show="row.data.state === 1">详情</q-btn>
           <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1">充值</q-btn>
           <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1">销卡</q-btn>
         </template>
@@ -138,11 +138,13 @@
                 <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
                   <div class="item">
                     <div class="title">开卡费</div>
-                    <span>{{ Number(select.actualOpenCardPrice).toFixed(2) }} USD</span>
+                    <!--                    <span>{{ Number(select.actualOpenCardPrice).toFixed(2) }} USD</span>-->
+                    <span>{{ Number(expense.openCardFeeAmount).toFixed(2) }} USD</span>
                   </div>
                   <div class="item q-mt-lg">
                     <div class="title">充值手续费</div>
-                    <span>{{ Number.parseFloat(select.actualRechargeFeeRate) }}%</span>
+                    <!--                    <span>{{ Number.parseFloat(select.actualRechargeFeeRate) }}%</span>-->
+                    <span>{{ Number.parseFloat(expense.rechargeFeeAmountRate) }}%</span>
                   </div>
                   <div class="item q-mt-lg">
                     <div class="title">预计扣款</div>
@@ -351,8 +353,8 @@
         </div>
 
         <div>
-          <span class="q-pl-lg q-mt-lg q-ml-lg" style="font-size: 15px">ID：</span>
-          <b>{{ this.cardDetail.id }}</b>
+          <!--          <span class="q-pl-lg q-mt-lg q-ml-lg" style="font-size: 15px">ID：</span>-->
+          <!--          <b>{{ this.cardDetail.id }}</b>-->
           <div class="q-pl-lg q-ml-lg flex">
             <div>
               <div class="item q-mt-lg">
@@ -448,8 +450,8 @@ export default {
         amount: 10,
         remark: ''
       },
-      description:{
-        '440872|451946|485997|556371':`推荐在Facebook、Google、Telegram、TikTok、Amazon、PayPal、Apple、TWITTER、Linked、Shopify、Walmart、YouTube、Alibaba、eBay、TAOBAO、Alipay、RISER、viber、Infobip、AliExpress等场景上付款。
+      description: {
+        '440872|451946|485997|556371': `推荐在Facebook、Google、Telegram、TikTok、Amazon、PayPal、Apple、TWITTER、Linked、Shopify、Walmart、YouTube、Alibaba、eBay、TAOBAO、Alipay、RISER、viber、Infobip、AliExpress等场景上付款。
                 <br>
                 <br> 警告：该卡BIN禁止在Steam、WALMART、Uber、Foodpanda这4个场景上交易使用，如违反发卡行严令禁止的交易场景将强制注销该卡。`
 
@@ -475,7 +477,7 @@ export default {
         },
         {
           value: 0,
-          label: '销卡',
+          label: '已销卡',
           color: 'red'
         }
       ],
@@ -542,21 +544,24 @@ export default {
 
     }
 
-    try {
-      this.expense = JSON.parse(localStorage.getItem("expense"))
-    } catch (aa) {
-
-    }
+    // try {
+    //   this.expense = JSON.parse(localStorage.getItem("expense"))
+    // } catch (aa) {
+    //
+    // }
     this.getAllBankCards()
   },
   methods: {
     input(card) {
       if (card.adapterSign === 'dnk') {
         this.openRecharge.amount = 30
+      } else if (card.adapterSign === 'vm-card') {
+        this.openRecharge.amount = 21
       } else {
         this.openRecharge.amount = 10
       }
       this.minAmount = this.openRecharge.amount
+      this.getExpense(card.id)
     },
     getList() {
       this.$axios.$get('/api_client/user_bank_card', this.queryObj).then(res => {
@@ -569,15 +574,27 @@ export default {
         }
       })
     },
+    getExpense(bankId) {
+      this.$axios.$get(`/api_client/expense?bankId=${bankId}`, this.queryObj).then(res => {
+        if (res && res.code === 0) {
+          console.log("进来了1！！" + this.expense)
+          this.expense = res.content
+          console.log("进来了2！！" + this.expense)
+        }
+      })
+    },
     cardClick(data) {
       if (data.adapterSign === 'dnk') {
         this.openRecharge.amount = 30
+      } else if (data.adapterSign === 'vm-card') {
+        this.openRecharge.amount = 21
       } else {
         this.openRecharge.amount = 10
       }
       this.minAmount = this.openRecharge.amount
       this.drawer = true
       this.select = data
+      this.expense = this.getExpense(data.id)
     },
     getUserCardsDetail() {
       this.$axios.$get('/api_client/card_detail', this.queryObj).then(res => {
@@ -675,6 +692,7 @@ export default {
       this.drawer2 = true
       this.cardNum = data.number
       this.cardId = data.id
+      this.getExpense(data.bankCardId)
     },
     cancelClick(data) {
       this.drawer3 = true

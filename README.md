@@ -1,6 +1,6 @@
 # Quasar App (quasar-project)
 
-A Quasar Project
+VCC全球支付——虚拟卡开户，虚拟卡购买，畅享全球支付，支持无限开卡，既时开卡，让您跨境购物或旅行更加方便无优
 
 ## Install the dependencies
 ```bash

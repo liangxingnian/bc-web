@@ -14,9 +14,7 @@
           dense
           label="账户"
           lazy-rules
-          :rules="[
-                      (val) => val !== null && val !== ''  || '请输入账户'
-                    ]"
+          :rules="[ (val) => val !== null && val !== ''  || '请输入账户' ]"
         >
         </q-input>
         <q-input
@@ -29,9 +27,7 @@
           label="密码"
           lazy-rules
           square
-          :rules="[
-                       (val) => val !== null && val !== ''  || '请输入密码'
-                    ]"
+          :rules="[ (val) => val !== null && val !== ''  || '请输入密码' ]"
         >
         </q-input>
         <q-input
@@ -68,7 +64,17 @@
           </template>
         </q-btn>
       </q-form>
+      <div class="q-mt-lg">
+        <q-btn no-caps unelevated class="text-center" style="color: darkturquoise;width: 100%" @click="showRegistModal()">
+          立即注册
+        </q-btn>
+      </div>
     </div>
+
+    <w-modal ref="modifyLoginPassword" title="注册" :show-button="false">
+      <div>请联系<a style="color: deepskyblue" target="_blank" href="https://t.me/LKJ118">在线客服</a>开户！</div>
+    </w-modal>
+
   </div>
 </template>
 
@@ -84,7 +90,11 @@ export default {
       sImg,
       obj: {},
       phoneCaptchaFlag: false,
-      form: {},
+      form: {
+        identifier:'',
+        password:'',
+        captcha: '',
+      },
       captchaUrl: '',
       isNeedVerify: false,
       validateCodeLoading: false,
@@ -138,6 +148,9 @@ export default {
     },
     getCaptcha() {
       this.captchaUrl = '/um/captcha?' + Math.random()
+    },
+    showRegistModal() {
+      this.$refs.modifyLoginPassword.show()
     },
     getVerifyCode() {
       this.$axios.$get(`/login/phone_verify?identifier=${this.form.identifier}&captcha=${this.form.phoneCaptcha}`).then(res => {

@@ -148,9 +148,9 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `Vcc System`,
-        short_name: `Vcc System`,
-        description: `A Quasar Project`,
+        name: `VCC全球支付——虚拟卡开户，虚拟卡购买，畅享全球支付，支持无限开卡，既时开卡`,
+        short_name: `VCC全球支付——虚拟卡开户，虚拟卡购买，畅享全球支付，支持无限开卡，既时开卡`,
+        description: `Visa Mastercard虚拟卡开发卡平台，老牌虚拟卡服务商，7*24小时全自助后台实现充值、开卡、绑卡、销卡操作。多币种结算，用于海外电商购物、服务订阅、广告支付。`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',

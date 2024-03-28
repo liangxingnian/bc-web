@@ -1,5 +1,16 @@
 import { parseDate } from 'src/morejs/_whc'
 
+export const copyText = (text, callback) => {
+  let tag = document.createElement('textarea')
+  tag.setAttribute('id', 'cp_textarea')
+  tag.value = text
+  document.getElementsByTagName('body')[0].appendChild(tag)
+  document.getElementById('cp_textarea').select()
+  document.execCommand('copy')
+  document.getElementById('cp_textarea').remove()
+  if (typeof callback === 'function') callback()
+}
+
 export const dataType = (data) => {
   return Object.prototype.toString.call(data).slice(8, -1)
 }

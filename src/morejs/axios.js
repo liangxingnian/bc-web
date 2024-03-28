@@ -1,7 +1,7 @@
 import axios from 'axios'
 import qs from 'qs'
-import { dataType, formatParams, strToObj } from 'src/morejs/utils'
-import { Loading } from 'quasar'
+import {dataType, formatParams, strToObj} from 'src/morejs/utils'
+import {Loading} from 'quasar'
 import notify from 'src/morejs/notify'
 import $bus from 'src/boot/bus'
 
@@ -90,7 +90,9 @@ axios.interceptors.response.use(
       }
     }, 0)
     if (response.config.method !== 'get' && response.data.code === 0) {
-      if (!((response.config.url.includes('/sku') && !response.config.url.includes('/route_unit')) ||
+      if (response.config.url.includes('/login')) {
+        notify.success('登录成功')
+      } else if (!((response.config.url.includes('/sku') && !response.config.url.includes('/route_unit')) ||
         (response.config.url.includes('/sku2') && !response.config.url.includes('/route_unit')) ||
         (response.config.url.includes('/route2') && !response.config.url.includes('/route_unit')) ||
         response.config.url.includes('/daily_new/dailyRevenue') ||
@@ -151,9 +153,9 @@ axios.interceptors.response.use(
 methods.forEach(method => {
   axios['$' + method] = function (url, data, timeout = 30000) {
     axios.defaults.headers['Content-Type'] = 'application/json'
-    let obj = { data }
+    let obj = {data}
     if (isParams.includes(method)) {
-      obj = { params: data }
+      obj = {params: data}
     } else if (method === 'put') {
       obj = data
     } else {
@@ -161,7 +163,7 @@ methods.forEach(method => {
     }
     return new Promise((resolve, reject) => {
       axios.defaults.timeout = timeout
-      axios[method](url, obj, { timeout })
+      axios[method](url, obj, {timeout})
         .then(res => {
           resolve(res.data)
         })
@@ -181,12 +183,12 @@ formMethods.forEach(method => {
     axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     let data = null
     if (isArray) {
-      data = qs.stringify(params, { arrayFormat: 'brackets' })
+      data = qs.stringify(params, {arrayFormat: 'brackets'})
     } else {
       data = qs.stringify(params)
     }
     return new Promise((resolve, reject) => {
-      axios[method](url, data, { timeout })
+      axios[method](url, data, {timeout})
         .then(
           res => {
             resolve(res.data)
@@ -205,7 +207,7 @@ formMethods.forEach(method => {
 axios.$deleteData = function (url, data) {
   axios.defaults.headers['Content-Type'] = 'application/json'
   return new Promise((resolve, reject) => {
-    axios.delete(url, { data })
+    axios.delete(url, {data})
       .then(
         res => {
           resolve(res.data)
