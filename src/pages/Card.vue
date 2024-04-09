@@ -19,8 +19,11 @@
       </div>
     </div>
     <div class="row q-col-gutter-lg q-mt-md">
+      <div class="col-3" v-for="card2 in clientBankCardList" :key="card2.id">
+        <w-card :data="card2" @click="cardClick"/>
+      </div>
       <div class="col-3" v-for="card in bankCardList" :key="card.id">
-        <w-card :data="card" @click="cardClick"/>
+        <w-card :data="card" @click="cardClickFalse" style="background-color: #777986"/>
       </div>
     </div>
 
@@ -94,7 +97,7 @@
       @hide="select={}"
     >
       <q-scroll-area class="fit">
-        <q-form @submit="openCard(select)">
+        <q-form @submit="openCard(select)" ref="openCardRefs">
           <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
             <q-icon name="ti-close" @click="drawer=false" class="flush q-mr-lg"></q-icon>
           </div>
@@ -105,7 +108,7 @@
           </div>
 
           <div class="flex q-ma-lg">
-            <div v-for="card in bankCardList" :key="card.id">
+            <div v-for="card in clientBankCardList" :key="card.id">
               <div style="border: 1px solid rgba(0,0,0,0.1); border-radius: 5px" class="q-pa-md q-mr-md q-mb-md">
                 <q-radio dense v-model="select" :val="card" :label="card.bin + ' ' + card.cr" @input="input(card)"/>
               </div>
@@ -181,6 +184,7 @@
                          :rules="[
                       (val) => val !== null && val !== ''  || '请输入充值金额',
                       (val) => Number(val) >=  minAmount || '最低开卡额度 : $'+minAmount,
+                      (val) => Number(val) <=  maxAmount || '最大开卡额度 : $'+maxAmount,
                       (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
                     ]"
                          style="display: inline-block"
@@ -221,65 +225,69 @@
       @hide="this.cardId = '';this.cardNum = '';this.select={}"
     >
       <q-scroll-area class="fit">
-        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
-          <q-icon name="ti-close" @click="rechargeClose()" class="flush q-mr-lg"></q-icon>
-        </div>
-        <div class="q-px-md q-py-lg">
-          <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">充值</span>
+        <q-form @submit="cardRechargeSubmit()" ref="rechargeCardRefs">
+          <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
+            <q-icon name="ti-close" @click="rechargeClose()" class="flush q-mr-lg"></q-icon>
           </div>
-        </div>
-
-        <div>
-          <div class="q-pl-lg q-mt-lg q-ml-lg">
-            <div class="item">
-              <div class="title">卡号</div>
-              <span>{{ this.cardNum }}</span>
-            </div>
-
-            <div class="item q-mt-lg">
-              <div class="title">充值手续费</div>
-              <span>{{ expense.rechargeFeeAmountRate }}</span>
-            </div>
-
-            <div class="item q-mt-lg">
-              <div class="title">预计扣款</div>
-              <span>{{
-                  Number(cardRecharge.amount) + (Number(cardRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
-                }} USD</span>
-            </div>
-
-          </div>
-
-          <div class=" q-pl-lg q-mt-lg q-ml-lg" style="margin-top: 50px">
-            <div class="item q-mt-lg">
-              <div class="title">钱包余额</div>
-              <span>{{ client.balance }} USD</span>
+          <div class="q-px-md q-py-lg">
+            <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">充值</span>
             </div>
           </div>
 
-          <div class=" q-pl-lg q-mt-lg q-ml-lg" style="margin-top: 50px">
-            <div class="item">
-              <div class="title">计划充值</div>
-              <q-input class="Ainput"
-                       outlined
-                       dense
-                       lazy-rules
-                       :rules="[
+          <div>
+            <div class="q-pl-lg q-mt-lg q-ml-lg">
+              <div class="item">
+                <div class="title">卡号</div>
+                <span>{{ this.cardNum }}</span>
+              </div>
+
+              <div class="item q-mt-lg">
+                <div class="title">充值手续费</div>
+                <span>{{ expense.rechargeFeeAmountRate }}</span>
+              </div>
+
+              <div class="item q-mt-lg">
+                <div class="title">预计扣款</div>
+                <span>{{
+                    Number(cardRecharge.amount) + (Number(cardRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
+                  }} USD</span>
+              </div>
+
+            </div>
+
+            <div class=" q-pl-lg q-mt-lg q-ml-lg" style="margin-top: 50px">
+              <div class="item q-mt-lg">
+                <div class="title">钱包余额</div>
+                <span>{{ client.balance }} USD</span>
+              </div>
+            </div>
+
+            <div class=" q-pl-lg q-mt-lg q-ml-lg" style="margin-top: 50px">
+              <div class="item">
+                <div class="title">计划充值</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         lazy-rules
+                         :rules="[
                       (val) => val !== null && val !== ''  || '请输入充值金额',
+                      (val) => Number(val) <=  maxAmount || '最大开卡额度 : $'+maxAmount,
                       (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足',
                     ]"
-                       style="display: inline-block"
-                       v-model="cardRecharge.amount"
-              >
-              </q-input>
+                         style="display: inline-block"
+                         v-model="cardRecharge.amount"
+                >
+                </q-input>
 
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="q-pl-lg q-mt-lg q-ml-lg">
-          <q-btn label="充值" color="light-blue" unelevated @click="cardRechargeSubmit()"></q-btn>
-        </div>
+          <div class="q-pl-lg q-mt-lg q-ml-lg">
+            <!--            <q-btn label="充值" color="light-blue" unelevated @click="cardRechargeSubmit()"></q-btn>-->
+            <q-btn label="充值" color="light-blue" unelevated type="submit"></q-btn>
+          </div>
+        </q-form>
       </q-scroll-area>
     </q-drawer>
 
@@ -436,6 +444,7 @@ export default {
       drawer4: false,
       val: false,
       minAmount: 10,
+      maxAmount: 100000,
       select: {},
       getCurrentDate,
       whc: _whc,
@@ -462,6 +471,7 @@ export default {
       },
       proxyList: [],
       bankCardList: [],
+      clientBankCardList: [],
       allCrList: [],
       userCardsDetail: [],
       addNewObj: {},
@@ -550,17 +560,23 @@ export default {
     //
     // }
     this.getAllBankCards()
+    this.getClientAllBankCards()
   },
   methods: {
     input(card) {
       if (card.adapterSign === 'dnk') {
         this.openRecharge.amount = 30
-      } else if (card.adapterSign === 'vm-card') {
+      } else if (card.adapterSign === 'vm-card2' || card.adapterSign === 'vm-card') {
         this.openRecharge.amount = 21
       } else {
         this.openRecharge.amount = 10
       }
       this.minAmount = this.openRecharge.amount
+      if (card.adapterSign === 'vm-card2') {
+        this.maxAmount = 350
+      } else {
+        this.maxAmount = 100000
+      }
       this.getExpense(card.id)
     },
     getList() {
@@ -570,6 +586,9 @@ export default {
           this.list = res.rows
           this.list.forEach(item => {
             this.$set(item, 'balance', '')
+            if (item.state === 1 && (item.adapterSign === 'vm-card2' || item.adapterSign === 'vm-card')){
+              this.getUserCardsBalance(item,true);
+            }
           })
         }
       })
@@ -586,15 +605,23 @@ export default {
     cardClick(data) {
       if (data.adapterSign === 'dnk') {
         this.openRecharge.amount = 30
-      } else if (data.adapterSign === 'vm-card') {
+      } else if (data.adapterSign === 'vm-card2' || data.adapterSign === 'vm-card') {
         this.openRecharge.amount = 21
       } else {
         this.openRecharge.amount = 10
       }
       this.minAmount = this.openRecharge.amount
+      if (data.adapterSign === 'vm-card2') {
+        this.maxAmount = 350
+      } else {
+        this.maxAmount = 100000
+      }
       this.drawer = true
       this.select = data
       this.expense = this.getExpense(data.id)
+    },
+    cardClickFalse() {
+      this.$notify.error("您未开通开卡权限，请联系在线客服激活账户。")
     },
     getUserCardsDetail() {
       this.$axios.$get('/api_client/card_detail', this.queryObj).then(res => {
@@ -627,27 +654,35 @@ export default {
       })
     },
     openCard(select) {
-      const openForm = {
-        bankCardId: select.id,
-        amount: this.openRecharge.amount,
-        remark: this.openRecharge.remark
-      }
-      this.$axios.$postForm('/api_client/open_card', openForm).then((resp) => {
-        if (resp && resp.code === 0) {
-          this.drawer = false
-          this.getClientCurrent()
+      this.$refs.openCardRefs.validate().then(success => {
+        if (success) {
+          const openForm = {
+            bankCardId: select.id,
+            amount: this.openRecharge.amount,
+            remark: this.openRecharge.remark
+          }
+          this.$axios.$postForm('/api_client/open_card', openForm).then((resp) => {
+            if (resp && resp.code === 0) {
+              this.drawer = false
+              this.getClientCurrent()
+            }
+          })
         }
       })
     },
     cardRechargeSubmit() {
-      const rechargeForm = {
-        bankCardId: this.cardId,
-        amount: this.cardRecharge.amount
-      }
-      this.$axios.$postForm('/api_client/recharge', rechargeForm).then((resp) => {
-        if (resp && resp.code === 0) {
-          this.drawer2 = false
-          this.getClientCurrent()
+      this.$refs.rechargeCardRefs.validate().then(success => {
+        if (success) {
+          const rechargeForm = {
+            bankCardId: this.cardId,
+            amount: this.cardRecharge.amount
+          }
+          this.$axios.$postForm('/api_client/recharge', rechargeForm).then((resp) => {
+            if (resp && resp.code === 0) {
+              this.drawer2 = false
+              this.getClientCurrent()
+            }
+          })
         }
       })
     },
@@ -673,6 +708,13 @@ export default {
         }
       })
     },
+    getClientAllBankCards() {
+      this.$axios.$get('/api_client/client_all_bank_card', this.queryObj).then(res => {
+        if (res && res.code === 0) {
+          this.clientBankCardList = res.content;
+        }
+      })
+    },
     detailClick(data) {
       this.cardBalance = '-'
       this.getUserCardsBalance(data, false)
@@ -689,6 +731,11 @@ export default {
         this.cardRecharge.amount = 10
       }
       this.minAmount = this.openRecharge.amount
+      if (data.adapterSign === 'vm-card2') {
+        this.maxAmount = 350
+      } else {
+        this.maxAmount = 100000
+      }
       this.drawer2 = true
       this.cardNum = data.number
       this.cardId = data.id

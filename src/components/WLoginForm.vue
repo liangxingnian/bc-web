@@ -65,14 +65,89 @@
         </q-btn>
       </q-form>
       <div class="q-mt-lg">
-        <q-btn no-caps unelevated class="text-center" style="color: darkturquoise;width: 100%" @click="showRegistModal()">
+        <q-btn no-caps unelevated class="text-center" style="color: darkturquoise;width: 100%"
+               @click="showRegistModal()">
           立即注册
         </q-btn>
       </div>
     </div>
 
-    <w-modal ref="modifyLoginPassword" title="注册" :show-button="false">
-      <div>请联系<a style="color: deepskyblue" target="_blank" href="https://t.me/LKJ118">在线客服</a>开户！</div>
+    <w-modal ref="modifyLoginPassword" title="注册" @on-ok="onRegister">
+      <q-form @submit="onRegister" ref="registForm">
+        <div class="q-gutter-y-md">
+          <div class="text-left text-body1"></div>
+          <div class="row">
+            <div class="col-12 q-gutter-y-sm">
+              <q-input
+                outlined
+                clearable
+                clear-icon="cancel"
+                v-model="dataForm.identifier"
+                label="用户名"
+                dense
+                lazy-rules
+                square
+                :rules="[
+                  (val) => val !== null && val !== ''  || '请输入用户名',
+                ]"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="fas fa-user-circle"/>
+                </template>
+              </q-input>
+              <q-input
+                outlined
+                clearable
+                clear-icon="cancel"
+                type="password"
+                v-model="dataForm.password"
+                dense
+                label="密码"
+                lazy-rules
+                square
+                :rules="[ (val) => val !== null && val !== ''  || '请输入密码' ]"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="fas fa-lock"/>
+                </template>
+                <template v-slot:append>
+                  <q-icon
+                    :name="isPwd ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="isPwd = !isPwd"
+                  />
+                </template>
+              </q-input>
+              <q-input
+                outlined
+                clearable
+                clear-icon="cancel"
+                type="password"
+                v-model="dataForm.twoPassword"
+                dense
+                label="确认密码"
+                lazy-rules
+                square
+                :rules="[
+                  (val) => val !== null && val !== ''  || '请输入确认密码',
+                  () => passwordValida || '两次密码不一致'
+                ]"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="fas fa-lock"/>
+                </template>
+                <template v-slot:append>
+                  <q-icon
+                    :name="isPwd ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="isPwd = !isPwd"
+                  />
+                </template>
+              </q-input>
+            </div>
+          </div>
+        </div>
+      </q-form>
     </w-modal>
 
   </div>
@@ -89,10 +164,11 @@ export default {
     return {
       sImg,
       obj: {},
+      dataForm: {},
       phoneCaptchaFlag: false,
       form: {
-        identifier:'',
-        password:'',
+        identifier: '',
+        password: '',
         captcha: '',
       },
       captchaUrl: '',
@@ -108,6 +184,11 @@ export default {
   async mounted() {
     //this.getCaptcha()
     //await this.needVerify()
+  },
+  computed: {
+    passwordValida: function () {
+      return this.dataForm.password === this.dataForm.twoPassword
+    }
   },
   methods: {
     onSubmit() {
@@ -146,6 +227,34 @@ export default {
         })
       })
     },
+    onRegister() {
+      this.$refs.registForm.validate().then(success => {
+        if (success) {
+          this.$axios.$get('/login/public_key').then(res => {
+            this.publicKey = res.content
+            const key = crypt.generateRandomKey()
+            const encryptedKey = crypt.rsaEncrypt(this.publicKey, key)
+            const password = this.dataForm.password && KJUR.crypto.Util.md5(this.dataForm.password)
+            const params = JSON.parse(JSON.stringify(this.dataForm))
+            params.password = password
+            delete params.twoPassword
+            const encrypted = crypt.aesEncrypt(key, JSON.stringify(params))
+            const form = {
+              key: encryptedKey,
+              params: encrypted,
+            }
+            this.$axios.$postForm('/register', form).then(function (response) {
+              let sessionSecret = response.content.sessionSecret
+              sessionSecret = crypt.aesDecrypt(key, sessionSecret)
+              localStorage.setItem('sessionSecret', sessionSecret)
+            }).then(() => {
+              // this.$store.dispatch('user/get', 'user')
+              this.$router.push({path: '/'})
+            })
+          })
+        }
+      })
+    },
     getCaptcha() {
       this.captchaUrl = '/um/captcha?' + Math.random()
     },
@@ -180,12 +289,18 @@ export default {
 </script>
 
 <style scoped>
+.labelStyle {
+  font-size: 14px;
+  width: 60px;
+  text-align: left;
+}
+
 .login-wrapper {
   background-color: #fff;
   padding: 50px;
   border-radius: 5px;
   max-width: 400px;
   margin: 18px auto;
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 </style>

@@ -14,7 +14,9 @@
            class="justify-between full-width">
         <span class="q-ml-md">卡片信息</span>
         <span class="q-ml-md"
-              style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">{{ this.cardDetail.state === 1 ? '正常' : '销卡' }}</span>
+              style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">{{
+            this.cardDetail.state === 1 ? '正常' : '销卡'
+          }}</span>
       </div>
 
       <div class="q-mt-lg">
@@ -51,6 +53,11 @@
             <div class="item q-mt-lg">
               <div class="title">余额</div>
               <b>{{ cardBalance }}</b>
+            </div>
+
+            <div class="item q-mt-lg" v-if="this.cardDetail.adapterSign === 'vm-card2'">
+              <div class="title">冻结余额</div>
+              <b style="color: red">{{ freeBalance }}</b>
             </div>
 
             <div class="item q-mt-lg">
@@ -261,6 +268,7 @@ export default {
       proxyList: [],
       crList: [],
       cardBalance: '',
+      freeBalance: '',
       addNewObj: {},
       addressObj: {},
       queryObj: {
@@ -413,11 +421,16 @@ export default {
 
     },
 
-    getUserCardsDetail() {
+    getUserCardsDetail(string, start) {
       this.$axios.$get(`/api_client/user_bank_card_detail/` + this.$route.params.id, this.queryObj).then(res => {
         if (res && res.code === 0) {
           this.cardDetail = res.content
-          this.getUserCardsBalance(res.content)
+          if (res.content.adapterSign === "vm-card2") {
+            this.getUserCardsBalanceAndFreeAmount(res.content)
+          } else {
+            this.getUserCardsBalance(res.content)
+          }
+
         }
       })
     },
@@ -425,6 +438,14 @@ export default {
       this.$axios.$get(`/api_client/card_balance?bankNum=${data.number}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
           this.cardBalance = Number(res.content).toFixed(2) + ' USD';
+        }
+      })
+    },
+    getUserCardsBalanceAndFreeAmount(data) {
+      this.$axios.$get(`/api_client/card_balance_with_free?bankNum=${data.number}`, this.queryObj).then(res => {
+        if (res && res.code === 0) {
+          this.cardBalance = Number(res.content.balance).toFixed(2) + ' USD';
+          this.freeBalance = Number(res.content.freeAmount).toFixed(2) + ' USD';
         }
       })
     },
