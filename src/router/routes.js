@@ -12,12 +12,20 @@ const routes = [
           title: '首页'
         },
       },
+      // {
+      //   path: '/open',
+      //   component: () => import('pages/Open.vue'),
+      //   icon: 'ti-credit-card',
+      //   meta: {
+      //     title: '创建新卡'
+      //   },
+      // },
       {
         path: '/card',
         component: () => import('pages/Card.vue'),
         icon: 'ti-credit-card',
         meta: {
-          title: '开卡'
+          title: '卡⽚列表'
         },
       },
       {
@@ -25,7 +33,7 @@ const routes = [
         component: () => import('pages/Wallet.vue'),
         icon: 'ti-wallet',
         meta: {
-          title: '钱包'
+          title: '资金管理'
         },
       },
       {
@@ -34,6 +42,14 @@ const routes = [
         icon: 'ti-clipboard',
         meta: {
           title: '订单'
+        },
+      },
+      {
+        path: '/personal',
+        component: () => import('pages/personal.vue'),
+        icon: 'ti-user',
+        meta: {
+          title: '个人中心'
         },
       },
       {

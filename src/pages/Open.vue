@@ -23,66 +23,8 @@
         <w-card :data="card2" @click="cardClick"/>
       </div>
       <div class="col-3" v-for="card in bankCardList" :key="card.id">
-        <w-card :data="card" @click="cardClickFalse" style="background-color: #777986"/>
+        <w-card :data="card" @click="cardClickFalse" style="background-color: lavender"/>
       </div>
-    </div>
-
-    <div class="text-bold q-mt-lg" style="color: cornflowerblue;font-size: 30px">卡片列表</div>
-
-    <div class="q-pa-sm bg-white q-mt-lg">
-      <div class="row items-center q-mb-sm">
-        <q-input :class="queryObj.size" outlined dense label="输入要搜索的卡号" clearable
-                 v-model="queryObj.number " style="min-width: 10em"
-                 class="q-mr-sm q-mb-xs"/>
-        <q-select outlined dense label="输入要搜索的状态" clearable
-                  v-model="queryObj.state" style="min-width: 10em"
-                  :options="stateList" class="q-mr-sm q-mb-xs"
-                  option-value="value" emit-value
-                  option-label="label" map-options/>
-        <div class="q-mb-xs q-mr-sm">
-          <q-btn unelevated class="q-mr-sm" @click="query" label="查询" padding="6px 26px"
-                 style="background-color: #6BAAFC; color: #FFFFFF"/>
-        </div>
-      </div>
-      <w-table key-field="id" :list="list" :columns="columns" :has-header="false">
-        <template slot="number" slot-scope="row">
-          {{ row.data.number ? row.data.number : '-' }}
-        </template>
-        <template slot="organization" slot-scope="row">
-          {{ row.data.organization ? row.data.organization : '-' }}
-        </template>
-        <div class="flex content-center justify-center" slot="balance" slot-scope="row">
-          {{ row.data.balance }}
-          <q-icon v-if="row.data.state===1" name="ti-reload" class="flush" size="12px" style="color: #777986"
-                  @click="getUserCardsBalance(row.data, true)"/>
-
-        </div>
-        <template slot="bin" slot-scope="row">
-          <span v-html="row.data.bin"></span>
-        </template>
-        <template slot="expiryDate" slot-scope="row">
-          {{ row.data.expiryDate ? row.data.expiryDate : '-' }}
-        </template>
-        <template slot="cvv" slot-scope="row">
-          {{ row.data.cvv ? row.data.cvv : '-' }}
-        </template>
-        <template slot="remark" slot-scope="row">
-          {{ row.data.remark ? row.data.remark : '-' }}
-        </template>
-        <template slot="createTime" slot-scope="row">
-          {{ row.data.createTime ? whc.Date.formatDateTime(new Date(row.data.createTime)) : '-' }}
-        </template>
-
-        <template slot="action" slot-scope="row">
-          <q-btn flat @click.stop="detailClick2(row.data)" v-show="row.data.state === 1">详情</q-btn>
-          <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1">充值</q-btn>
-          <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1">销卡</q-btn>
-        </template>
-
-      </w-table>
-      <w-empty :has="list.length" tip="没有找到相关的数据"/>
-      <w-page v-if="list.length" ref="page" :current="queryObj.pageNumber" :total="total" @on-change="pageNumberChange"
-              @on-page-size-change="pageSizeChange"/>
     </div>
 
     <!-- 侧面弹窗-->
@@ -290,125 +232,6 @@
       </q-scroll-area>
     </q-drawer>
 
-    <!-- 销卡侧面弹窗-->
-    <q-drawer
-      v-model="drawer3"
-      :width='1100'
-      :breakpoint="500"
-      overlay
-      side="right"
-      bordered
-      @hide="this.cardId = '';this.cardNum = '';this.select={}"
-    >
-      <q-scroll-area class="fit">
-        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="text-right">
-          <q-icon name="ti-close" @click="cancelClose()" class="flush q-mr-lg"></q-icon>
-        </div>
-        <div class="q-px-md q-py-lg">
-          <div style="border-bottom: 1px solid rgba(0,0,0,0.1)" class="q-pb-sm"><span class="q-ml-md">销卡</span>
-          </div>
-        </div>
-
-        <div>
-          <div class="q-pl-lg">
-            <div class="item">
-              <div style="font-size: 18px; line-height: 30px;">
-                1、销卡不可撤销
-                <br>
-                2、发起销卡后无法再进行交易，
-                <br>
-                3、发起销卡后无法再收到退款
-              </div>
-            </div>
-          </div>
-          <div class="q-pl-md q-mt-lg">
-            <div class="item">
-              <q-checkbox size="30px" :color="val?'light-blue':''" :class="[val?'cancel':'noCancel']" v-model="val"
-                          label="我已知晓、如已确认以上信息，请点击左侧小方框"/>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="q-pl-lg q-mt-lg">
-          <q-btn label="销卡" color="light-blue" unelevated @click="cardCancelSubmit()" :disabled="!this.val"></q-btn>
-        </div>
-      </q-scroll-area>
-    </q-drawer>
-
-    <!-- 银行卡详情侧面弹窗-->
-    <q-drawer
-      v-model="drawer4"
-      :width='1100'
-      :breakpoint="500"
-      overlay
-      side="right"
-      bordered
-      @hide="this.cardId = '';this.cardNum = '';this.select={}"
-    >
-      <q-scroll-area class="fit">
-        <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2)" class="flex justify-between full-width">
-          <b class="q-ml-md" style="font-size: 25px;color: #00bcd4">{{ this.cardDetail.number }}</b>
-          <q-icon name="ti-close" @click="drawer4=false" class="flush q-mr-lg"></q-icon>
-        </div>
-        <div class="q-px-md q-py-lg">
-          <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 22px" class="q-pb-sm">
-            <span class="q-ml-md">卡片信息</span>
-            <span class="q-ml-md"
-                  style="background-color: #26A69A;color: white;padding: 5px 10px;border-radius: 5px;font-size: 15px">正常</span>
-          </div>
-        </div>
-
-        <div>
-          <!--          <span class="q-pl-lg q-mt-lg q-ml-lg" style="font-size: 15px">ID：</span>-->
-          <!--          <b>{{ this.cardDetail.id }}</b>-->
-          <div class="q-pl-lg q-ml-lg flex">
-            <div>
-              <div class="item q-mt-lg">
-                <div class="title">类型</div>
-                <span>{{ this.cardDetail.organization }}</span>
-              </div>
-
-              <div class="item q-mt-lg">
-                <div class="title">开卡时间</div>
-                <span>{{
-                    this.cardDetail.createTime ? whc.Date.formatDateTime(new Date(this.cardDetail.createTime)) : '-'
-                  }}</span>
-              </div>
-
-              <div class="item q-mt-lg">
-                <div class="title">销卡时间</div>
-                <span>{{
-                    this.cardDetail.state === 0 ? this.cardDetail.modifyTime ? whc.Date.formatDateTime(new Date(this.cardDetail.modifyTime)) : '-' : '-'
-                  }}</span>
-              </div>
-              <div class="item q-mt-lg">
-                <div class="title">备注</div>
-                <span>{{ this.cardDetail.remark ? this.cardDetail.remark : '-' }}</span>
-              </div>
-            </div>
-
-            <div style="margin-left: 200px">
-
-              <div class="item q-mt-lg">
-                <div class="title">余额</div>
-                <span>{{ cardBalance }}</span>
-              </div>
-
-              <div class="item q-mt-lg">
-                <div class="title">过期时间</div>
-                <span>{{ this.cardDetail.expiryDate }}</span>
-              </div>
-
-              <div class="item q-mt-lg">
-                <div class="title">安全码</div>
-                <span>{{ this.cardDetail.cvv }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </q-scroll-area>
-    </q-drawer>
 
   </div>
 </template>
@@ -416,22 +239,14 @@
 
 <script>
 import WCard from "components/WCard";
-import WTable from "components/WTable.vue";
-import WPage from "components/WPage.vue";
-import WEmpty from "components/WEmpty.vue";
 import WDatePickerSecond from "components/WDatePickerSecond.vue";
 import {getCurrentDate} from "src/morejs/utils";
 import {_whc} from "src/morejs/_whc";
-import crypt from "src/morejs/crypt";
-import {KJUR} from "jsrsasign";
 
 export default {
   components: {
     // eslint-disable-next-line vue/no-unused-components
     WDatePickerSecond,
-    WEmpty,
-    WPage,
-    WTable,
     WCard
   },
   name: 'PageIndex',
@@ -490,61 +305,12 @@ export default {
           color: 'red'
         }
       ],
-      list: [],
-      columns: [
-        {
-          title: '卡号',
-          slot: 'number',
-          minWidth: 100
-        },
-        {
-          title: '卡组织',
-          slot: 'organization',
-          minWidth: 100
-        },
-        {
-          title: '余额',
-          slot: 'balance',
-          minWidth: 100
-        },
-        {
-          title: '卡头',
-          slot: 'bin',
-          minWidth: 100
-        },
-        {
-          title: '过期时间',
-          slot: 'expiryDate',
-          minWidth: 100
-        },
-        {
-          title: '安全码',
-          slot: 'cvv',
-          minWidth: 100
-        },
-        {
-          title: '备注',
-          slot: 'remark',
-          minWidth: 100
-        },
-        {
-          title: '开卡时间',
-          slot: 'createTime',
-          minWidth: 100
-        },
-        {
-          title: '操作',
-          slot: 'action',
-          minWidth: 100
-        }
-      ]
     }
   },
   mounted() {
     if (this.$route.query && this.$route.query.id) {
       this.queryObj.taskId = this.$route.query.id
     }
-    this.getList()
     this.getUserCardsDetail()
     // this.getCurrent()
     try {
@@ -552,12 +318,6 @@ export default {
     } catch (aa) {
 
     }
-
-    // try {
-    //   this.expense = JSON.parse(localStorage.getItem("expense"))
-    // } catch (aa) {
-    //
-    // }
     this.getAllBankCards()
     this.getClientAllBankCards()
   },

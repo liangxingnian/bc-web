@@ -5,7 +5,7 @@
         <div class="flex">
           <q-img :src="UsdImg" style="height: 45px;width: 45px"></q-img>
           <div class="q-ml-sm">
-            <div style="font-weight: 500;font-size: 18px">{{ client.balance }} USDT</div>
+            <div style="font-weight: 500;font-size: 18px">{{ client.balance }} USD</div>
             <div style="color: rgba(0,0,0,0.5)">美元</div>
           </div>
         </div>
@@ -20,7 +20,7 @@
       </q-card-actions>
     </q-card>
 
-    <div class="text-bold q-mt-lg" style="color: cornflowerblue;font-size: 20px">钱包流水</div>
+    <div class="text-bold q-mt-lg" style="color: cornflowerblue;font-size: 20px">资金明细</div>
 
     <div class="q-pa-sm bg-white">
       <div class="row items-center q-mb-sm">
@@ -53,7 +53,7 @@
           {{ row.data.amount ? row.data.amount : '-' }} USD
         </template>
         <template slot="applyBalance" slot-scope="row">
-          {{ row.data.applyBalance ? row.data.applyBalance : '-' }}
+          {{ row.data.applyBalance ? row.data.applyBalance : '-' }} USD
         </template>
         <template slot="remark" slot-scope="row">
           {{ row.data.remark ? row.data.remark : '-' }}
@@ -64,14 +64,14 @@
               @on-page-size-change="pageSizeChange"/>
     </div>
 
-    <w-modal ref="addNewModal" title="USDT充值" @on-ok="recharge" min-width="500px">
+    <w-modal ref="addNewModal" title="USD充值" @on-ok="recharge" min-width="500px">
       <q-form class="q-gutter-sm" ref="addNewAccountRefs">
         <q-input v-model="dataForm.amount"
                  dense outlined clearable square
                  lazy-rules
                  :rules="[
                   val => val && val.length > 0 || '请输入充值金额',
-                  (val) => 10 <  Number(val) || '最低充值金额 10 USDT'
+                  (val) => 10 <  Number(val) || '最低充值金额 10 USD'
                 ]"
         >
           <template v-slot:before>
@@ -81,9 +81,9 @@
       </q-form>
     </w-modal>
 
-    <w-modal ref="fundModal" title="USDT充值" :show-button="false">
+    <w-modal ref="fundModal" title="USD充值" :show-button="false">
 
-      <div>1. 仅接受<span style="color: red">USDT (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
+      <div>1. 仅接受<span style="color: red">USD (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
       <div>2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span style="color: red">0.3%</span> ，转账成功后将扣除手续费并入账至您的账户余额。</div>
       <div>3. 最低充值金额10，低于10系统不处理入账，需充值满10后系统自动入账。</div>
       <div>4. 系统自动确认到账，确认时间约<span style="color: red">10分钟</span>，超过30分钟未入账，可联系在线客服查询。</div>
@@ -149,38 +149,38 @@ export default {
         {
           value: -1,
           label: '开卡支付',
-          color: 'red'
+          color: 'black'
         },
         {
           value: 1,
           label: '订单退款',
-          color: '#3bbf79'
+          color: 'black'
         },
         {
           value: -2,
           label: '充值支付',
-          color: 'red'
+          color: 'black'
         },
         {
           value: 2,
           label: '充值退款',
-          color: '#1976D2'
+          color: 'black'
         },
         {
           value: 4,
           label: '加款',
-          color: '#9fa847'
+          color: 'black'
         },
         {
           value: 5,
           label: '修正',
-          color: 'red'
+          color: 'black'
         }
         ,
         {
           value: 88,
           label: '销卡退款',
-          color: '#3bbf79'
+          color: 'black'
         }
       ],
       list: [],

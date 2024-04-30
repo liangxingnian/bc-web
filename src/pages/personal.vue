@@ -1,65 +1,33 @@
 <template>
-  <div>
-    <q-layout view="lHh lpR fFf" class="bg-grey-2">
-      <q-header style="background-color: #fff">
-        <q-toolbar>
-          <q-btn
-            flat
-            dense
-            round
-            icon="menu"
-            aria-label="Menu"
-            color="light-blue"
-            @click="leftDrawerOpen = !leftDrawerOpen"
-          />
-
-          <q-toolbar-title class="text-black">
-          </q-toolbar-title>
-
-          <q-btn-dropdown no-caps unelevated :label="user && user.name" color="light-blue">
-            <q-list>
-              <q-item clickable v-close-popup @click="showExportModal">
-                <q-item-section>
-                  <q-item-label>修改密码</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="logout">
-                <q-item-section>
-                  <q-item-label>退出登录</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-        </q-toolbar>
-      </q-header>
-
-      <q-drawer
-        v-model="leftDrawerOpen"
-        show-if-above
-        bordered
-        :width="290"
-        content-class="bg-white"
-      >
-        <q-scroll-area class="fit">
-          <div class="text-center q-mt-md">
-            <img :src="vccImg" width="100" />
+  <q-page>
+    <div class="bg-white" style="border-radius: 5px;">
+      <div style="font-size: 22px;border-bottom: 1px solid rgba(0,0,0,0.1)" class="flex content-center q-pl-lg q-py-lg">
+          <b>账户信息</b>
+      </div>
+      <div class="q-px-lg">
+        <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 16px" class="q-py-lg">
+          <div>全名</div>
+          <div>{{client.name}}</div>
+        </div>
+        <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 16px" class="q-py-lg">
+          <div>账户</div>
+          <div>{{user.name}}</div>
+        </div>
+        <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 16px" class="q-py-lg">
+          <div>用户ID（userSerial）</div>
+          <div>{{client.id}}</div>
+        </div>
+        <div class="q-py-lg flex justify-between" style="font-size: 16px">
+          <div>
+            <div>密码</div>
+            <div>********</div>
           </div>
-          <q-list class="q-mt-md">
-            <w-menu :routes="routes"/>
-          </q-list>
-        </q-scroll-area>
-      </q-drawer>
-
-      <q-page-container>
-        <div class="q-ma-md">
-          <router-view/>
+          <div class="float-right">
+            <q-btn @click="showExportModal" outline color="primary" label="修改密码" />
+          </div>
         </div>
-        <div class="text-center view-footer q-pb-md">
-        </div>
-      </q-page-container>
-
-    </q-layout>
-
+      </div>
+    </div>
 
     <w-modal ref="modifyLoginPassword" title="修改登录密码" @on-ok="modifyPassword">
       <q-separator/>
@@ -111,84 +79,68 @@
         </q-tab-panel>
       </q-tab-panels>
     </w-modal>
-    <a target="_blank" href="https://t.me/LKJ118"><img style="position: fixed;right: 20px;bottom: 20px" src="/tgicon.svg" width="40px"/></a>
-  </div>
-
+  </q-page>
 </template>
 
 <script>
-import routes from 'src/router/routes'
-import WMenu from 'src/components/WMenu'
-import crypt from 'src/morejs/crypt.js'
-import {KJUR} from 'jsrsasign'
-import WLink from 'src/components/WLink'
+import balance from "src/assets/balance.png";
+import cardlist from "src/assets/cardlist.png";
+import income from "src/assets/income.png";
+import incomehandle from "src/assets/incomehandle.png";
+import open from "src/assets/open.png";
+import record from "src/assets/record.png";
+import crypt from "src/morejs/crypt";
+import {KJUR} from "jsrsasign";
 import valida from 'src/morejs/clients'
-import vccImg from 'src/assets/vcc.png'
 
 export default {
-  name: 'MainLayout',
-  components: {
-    WMenu,
-    WLink
-  },
+  name: "personal",
   data() {
     return {
-      vccImg,
-      routes,
+      balance,
+      cardlist,
+      income,
+      incomehandle,
+      open,
+      record,
       valida,
-      user: null,
-      client: null,
-      expense: null,
-      leftDrawerOpen: false,
-      form: {},
-      tagsName: 'name',
+      user: {},
+      client: {},
+      article: [],
+      expense: {},
       modify: {
         oldPassword: '',
         password: '',
         twoPassword: ''
       },
-      phoneEditPass: {
-        key: '',
-        password: '',
-        twoPassword: '',
-        phoneNumber: '',
-        phoneVerifyCode: ''
-      },
+      tagsName: 'name',
+      isMore: false
     }
   },
   mounted() {
-    this.getCurrent()
+    try {
+      this.user = JSON.parse(localStorage.getItem("current"))
+    } catch (aa) {
+
+    }
+    try {
+      this.expense = JSON.parse(localStorage.getItem("expense"))
+    } catch (aa) {
+
+    }
+    this.getArticle()
     this.getClientCurrent()
-    this.getExpense()
   },
   methods: {
-    getCurrent() {
-      this.$axios.$get('/user/current', {skipDefault: true}).then(res => {
-        this.user = res.content
-        localStorage.setItem("current", JSON.stringify(this.user))
+    getArticle() {
+      this.$axios.$get('/article', {skipDefault: true}).then(res => {
+        this.article = res.content
       })
     },
     getClientCurrent() {
       this.$axios.$get('/api_client/current', {skipDefault: true}).then(res => {
         this.client = res.content
-        localStorage.setItem("client_current", JSON.stringify(this.client))
       })
-    },
-    getExpense() {
-      this.$axios.$get('/api_client/expense', {skipDefault: true}).then(res => {
-        this.expense = res.content
-        localStorage.setItem("expense", JSON.stringify(this.expense))
-      })
-    },
-    logout() {
-      this.$axios.$post('/logout', null, {skipDefault: true})
-        .catch(err => {
-          console.error('退出异常' + err)
-        })
-        .finally(() => {
-          localStorage.setItem('sessionSecret', '')
-          this.$router.push({path: '/login'})
-        })
     },
     showExportModal() {
       this.modify.password = ''
@@ -234,13 +186,54 @@ export default {
 }
 </script>
 
-<style scoped lang="stylus">
-.view-footer {
-  user-select none
-  color $grey-5
+<style lang="stylus" scoped>
+.adv {
+  width: 80px;
+  height: 80px;
+  border-radius: 100%;
+  background-color:$light-blue;
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 
->>> .q-item__section--avatar {
-  min-width: 0
+.title {
+  color:$orange
+}
+
+.tip {
+//margin-top: 30px; background-color:$orange-1;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.grade {
+  padding: 10px;
+}
+
+.grade2 {
+  font-weight: 700;
+}
+
+.grade3 {
+  color: #777986;
+}
+
+.grade4 {
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ellipsis {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+a {
+  text-decoration: none;
+  color: #1D1D1D;
 }
 </style>
