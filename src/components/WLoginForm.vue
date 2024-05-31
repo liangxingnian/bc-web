@@ -1,33 +1,27 @@
 <template>
   <div>
-    <div class="text-center">
-      <img :src="sImg" style="height: 60px"/>
-    </div>
     <div class="login-wrapper">
-      <b style="font-size: 25px">
-        登录
-      </b>
-      <q-form @submit="onSubmit" ref="loginForm" class="q-mt-md">
+      <span style="font-size: 24px">
+        登录您的账号
+      </span>
+      <q-form @submit="onSubmit" ref="loginForm" class="q-mt-lg">
+        <div class="q-mb-sm"><span style="color: red">*</span> 账号</div>
         <q-input
           outlined
           v-model="form.identifier"
-          dense
-          label="账户"
-          lazy-rules
-          :rules="[ (val) => val !== null && val !== ''  || '请输入账户' ]"
+          square
+          clearable
+          placeholder="请输入账号"
         >
         </q-input>
+        <div class="q-mb-sm q-mt-lg"><span style="color: red">*</span> 密码</div>
         <q-input
           outlined
-          clear-icon="cancel"
+          clearable
+          placeholder="请输入密码"
           :type="isPwd ? 'password' : 'text'"
           v-model="form.password"
-          dense
-          debounce="500"
-          label="密码"
-          lazy-rules
           square
-          :rules="[ (val) => val !== null && val !== ''  || '请输入密码' ]"
         >
         </q-input>
         <q-input
@@ -48,20 +42,32 @@
           </template>
         </q-input>
         <q-btn
-          dense
+          v-show="form.identifier&&form.password"
+         square
           unelevated
           label="登录"
-          :disable="!accept"
           size="17px"
-          color="primary q-mt-sm"
-          class="full-width"
+          class="full-width q-mt-lg"
           type="submit"
           :loading="loginLoading"
+          style="background: #28bedc;color: white"
         >
           <template v-slot:loading>
             <q-spinner-ios class="on-left"/>
             登录...
           </template>
+        </q-btn>
+        <q-btn
+          v-show="!(form.identifier&&form.password)"
+         square
+          unelevated
+          label="登录"
+          disable
+          size="17px"
+          class="full-width q-mt-lg"
+          type="submit"
+          style="background: rgba(0,0,0,0.1);color: rgba(0,0,0,0.7)"
+        >
         </q-btn>
       </q-form>
       <div class="q-mt-lg">
@@ -299,8 +305,8 @@ export default {
   background-color: #fff;
   padding: 50px;
   border-radius: 5px;
-  max-width: 400px;
+  max-width: 600px;
   margin: 18px auto;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  //border: 1px solid rgba(0, 0, 0, 0.2);
 }
 </style>

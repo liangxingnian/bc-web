@@ -61,7 +61,7 @@
             </div>
 
             <div class="item q-mt-lg">
-              <div class="title">过期时间</div>
+              <div class="title">有效期</div>
               <b>{{ this.cardDetail.expiryDate }}</b>
             </div>
 
@@ -161,6 +161,9 @@
             </template>
             <template slot="result" slot-scope="row">
               {{ row.data.result ? row.data.result : '-' }}
+            </template>
+            <template slot="description" slot-scope="row">
+              {{ row.data.description ? row.data.description : '-' }}
             </template>
           </w-table>
         </q-tab-panel>
@@ -339,6 +342,11 @@ export default {
         {
           title: '结果',
           slot: 'result',
+          minWidth: 100
+        },
+        {
+          title: '交易状态说明',
+          slot: 'description',
           minWidth: 100
         }
       ],

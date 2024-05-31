@@ -396,7 +396,7 @@
               </div>
 
               <div class="item q-mt-lg">
-                <div class="title">过期时间</div>
+                <div class="title">有效期</div>
                 <span>{{ this.cardDetail.expiryDate }}</span>
               </div>
 
@@ -513,7 +513,7 @@ export default {
           minWidth: 100
         },
         {
-          title: '过期时间',
+          title: '有效期',
           slot: 'expiryDate',
           minWidth: 100
         },

@@ -8,7 +8,7 @@
         </div>
         <div v-if="article.length" :class="isMore?'':'ellipsis'" v-html="article[0].content"></div>
         <div v-else>暂无公告</div>
-        <div class="text-right">
+        <div class="text-left">
           <q-btn v-if="!isMore" flat color="primary" @click="isMore=true" size="md" label="更多"/>
           <q-btn v-else flat color="primary" @click="isMore=false" size="md" label="隐藏"/>
         </div>
@@ -218,7 +218,7 @@ export default {
 .ellipsis {
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   white-space: normal;

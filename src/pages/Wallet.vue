@@ -71,7 +71,8 @@
                  lazy-rules
                  :rules="[
                   val => val && val.length > 0 || '请输入充值金额',
-                  (val) => 10 <  Number(val) || '最低充值金额 10 USD'
+                  (val) => 10 <  Number(val) || '最低充值金额 10 USD',
+                  (val) =>  Number(val)%1===0 || '请输入充值金额为整数'
                 ]"
         >
           <template v-slot:before>
@@ -84,17 +85,22 @@
     <w-modal ref="fundModal" title="USD充值" :show-button="false">
 
       <div>1. 仅接受<span style="color: red">USD (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
-      <div>2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span style="color: red">0.3%</span> ，转账成功后将扣除手续费并入账至您的账户余额。</div>
+      <div>2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span style="color: red">0.3%</span>
+        ，转账成功后将扣除手续费并入账至您的账户余额。
+      </div>
       <div>3. 最低充值金额10，低于10系统不处理入账，需充值满10后系统自动入账。</div>
-      <div>4. 系统自动确认到账，确认时间约<span style="color: red">10分钟</span>，超过30分钟未入账，可联系在线客服查询。</div>
-      <div>5. 请<span style="color: red">仔细核对转账地址</span>，如由于剪切板内容被篡改导致转账地址错误，我司不承担损失。</div>
+      <div>4. 系统自动确认到账，确认时间约<span style="color: red">10分钟</span>，超过30分钟未入账，可联系在线客服查询。
+      </div>
+      <div>5. 请<span style="color: red">仔细核对转账地址</span>，如由于剪切板内容被篡改导致转账地址错误，我司不承担损失。
+      </div>
       <br>
       <div>请往已给地址发送以下金额以完成余额充值，此次充值完成会在余额内增加 <span
         style="color: red">{{ this.dataForm.amount }}</span> USDT
       </div>
       <br>
       <div>付款金额 (点击复制) : <span class="text" @click="copy(fundForm.amount)"
-                                       style="color: #26A69A">{{ this.fundForm.amount }}</span> （付款金额包括小数点）</div>
+                                       style="color: #26A69A">{{ this.fundForm.amount }}</span> （付款金额包括小数点）
+      </div>
       <div>付款地址 (点击复制) : <span class="text" @click="copy(fundForm.address)"
                                        style="color: #00bcd4">{{ this.fundForm.address }}</span></div>
     </w-modal>
@@ -268,7 +274,7 @@ export default {
     },
     recharge() {
       this.$refs.addNewAccountRefs.validate().then(success => {
-        if (success){
+        if (success) {
           const rechargeForm = {
             amount: this.dataForm.amount,
           }

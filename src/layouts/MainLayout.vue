@@ -123,7 +123,7 @@ import crypt from 'src/morejs/crypt.js'
 import {KJUR} from 'jsrsasign'
 import WLink from 'src/components/WLink'
 import valida from 'src/morejs/clients'
-import vccImg from 'src/assets/vcc.png'
+import vccImg from 'assets/vcc.png'
 
 export default {
   name: 'MainLayout',
