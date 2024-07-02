@@ -84,7 +84,7 @@
 
     <w-modal ref="fundModal" title="USD充值" :show-button="false">
 
-      <div>1. 仅接受<span style="color: red">USD (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
+      <div>1. 仅接受<span style="color: red">USDT (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
       <div>2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span style="color: red">0.3%</span>
         ，转账成功后将扣除手续费并入账至您的账户余额。
       </div>

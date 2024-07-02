@@ -49,7 +49,7 @@
           </tr>
           <tr :key="item[keyField]+'_'+(indexKey || !item[keyField]?index:'')" @mouseover="hover(index, false)"
               @mouseleave="leave" :class="item[keyField]+'_'+(indexKey || !item[keyField]?index:'')"
-              :style="{'background': item.selected ? 'rgba(25, 118, 210, 0.04)' :''}">
+              :style="{'background': item.special ? 'rgba(255,192,203,1)' :''}">
             <template v-for="(field,columnsIndex) in columns">
               <td :key="field.key" style="border-bottom: 1px solid #e0e0e0"
                   :class="[field.more?'has-more':'', getClassNames(false, columnsIndex,field)]">

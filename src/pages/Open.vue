@@ -328,10 +328,15 @@ export default {
       } else if (card.adapterSign === 'vm-card2' || card.adapterSign === 'vm-card') {
         if (card.bin === '534786') {
           this.openRecharge.amount = 42
+        } else if (card.bin === '553370' || card.bin === '404038') {
+          this.openRecharge.amount = 21
+        } else if (card.bin === '553437') {
+          this.openRecharge.amount = 10
+        } else if (card.bin === '491090' || card.bin === '428836' || card.bin === '433451' || card.bin === '440872' || card.bin === '451946' || card.bin === '553437') {
+          this.openRecharge.amount = 10
         } else {
           this.openRecharge.amount = 20
         }
-
       } else {
         this.openRecharge.amount = 10
       }
@@ -372,10 +377,15 @@ export default {
       } else if (data.adapterSign === 'vm-card2' || data.adapterSign === 'vm-card') {
         if (data.bin === '534786') {
           this.openRecharge.amount = 42
+        } else if (data.bin === '553370' || data.bin === '404038') {
+          this.openRecharge.amount = 21
+        } else if (data.bin === '553437') {
+          this.openRecharge.amount = 10
+        } else if (data.bin === '491090' || data.bin === '428836' || data.bin === '433451' || data.bin === '440872' || data.bin === '451946' || data.bin === '553437') {
+          this.openRecharge.amount = 10
         } else {
           this.openRecharge.amount = 20
         }
-
       } else {
         this.openRecharge.amount = 10
       }
@@ -497,12 +507,11 @@ export default {
       if (data.adapterSign === 'dnk') {
         this.cardRecharge.amount = 30
       } else {
-        if (data.bin === '534786') {
+        if (data.bin === '534786' || data.bin === '553370' || data.bin === '404038') {
           this.cardRecharge.amount = 21
         } else {
           this.cardRecharge.amount = 10
         }
-
       }
       this.minAmount = this.openRecharge.amount
       if (data.adapterSign === 'vm-card2') {

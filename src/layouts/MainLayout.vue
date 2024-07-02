@@ -111,6 +111,37 @@
         </q-tab-panel>
       </q-tab-panels>
     </w-modal>
+
+    <q-dialog v-model="alert" :persistent="true">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6"><b>通知：</b></div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none" style="font-weight: bold">
+          为了给您带来更加出色的服务品质及更好的客户体验，发卡行渠道将进行升级，2024.05.28之前创建的特定卡段将于<span style="color: red">2024.06.05 12:00</span>下线停用，受影响的卡在该日期后将无法继续使用。现说明如下：
+          <br>
+          <br>1. 受影响的卡，系统已在卡列表标记为<span style="color:red;">【红色】</span>。注意：其他未标记为红色的卡不受影响可继续正常使用。
+          <br>2. 请记得在此之前，将这些卡片从您的支付平台和自动扣款服务中解绑，以免影响您的日常使用。
+          <br>3. 请在2024.06.04前，手动执行“销卡”操作，销卡成功后卡内余额自动退回总账。
+          <br>4. 如未手动处理，系统将于<span style="color: red">2024.06.05</span>自动执行卡退款&销卡操作。卡内可用余额将自动清空并退回您的后台总账，无需您操作。
+          <br>5.我们将为您返回开卡手续费，充值手续费，让您下次开卡时无需在支付该费用。
+
+          <br>
+          <br>我们对上述变更对你造成的影响表示歉意。系统升级后，原有卡段可继续开卡使用，使用更加流畅：a) 卡限额提升 b) 有效期提升c) 卡操作更便捷。
+          <br>
+          <br>本次升级，只是让您的卡片信息更安全，使用周期更长，卡片管理操作更便捷！
+          <br>
+          <br>
+          <br><span style="color: red">卡费已全部退回，请注意查收，您可以在后台资金管理查看账单核实，如您需要任何帮助，请随时联系我们的在线客服</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <a target="_blank" href="https://t.me/LKJ118"><img style="position: fixed;right: 20px;bottom: 20px" src="/tgicon.svg" width="40px"/></a>
   </div>
 
@@ -136,6 +167,7 @@ export default {
       vccImg,
       routes,
       valida,
+      alert:false,
       user: null,
       client: null,
       expense: null,
