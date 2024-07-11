@@ -14,6 +14,40 @@
           />
 
           <q-toolbar-title class="text-black">
+            <div style="height: 60px" class="flex items-center float-right">
+              <q-btn dense round flat icon="ti-email">
+                <q-badge v-if="noReadCount" color="red" floating transparent>
+                  {{noReadCount}}
+                </q-badge>
+                <q-popup-proxy>
+                  <q-banner style="width: 300px">
+                    <div class="flex justify-between items-center" style="height: 46px">
+                      <b>消息</b>
+                      <q-btn v-if="informList.length" flat color="secondary" @click="allRead()" label="全部已读"/>
+                    </div>
+                    <template v-if="informList.length">
+                      <div class="msg-card" v-for="msg in informList" :key="msg.id">
+                        <div>
+                          <b style="font-size: 18px;color:#5c6bc0">{{ msg.title }}</b>
+                          <div class="ellipsis" style="font-size: 16px;margin-top: 5px;width: 250px">
+                            {{ msg.content }}
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                    <div v-else style="color: rgba(0,0,0,0.4);padding: 10px 0 20px 0" class="text-center">
+                      暂无消息
+                    </div>
+                    <div style="color: rgb(62, 191, 221);background-color: rgba(0,0,0,0.05);padding: 7px 10px; border-radius: 3px;cursor: pointer"
+                         @click.stop="detailClick2()">
+                      <q-icon name="ti-email"></q-icon>
+                      <b style="margin-left: 10px">消息中心</b>
+                    </div>
+                  </q-banner>
+                </q-popup-proxy>
+              </q-btn>
+
+            </div>
           </q-toolbar-title>
 
           <q-btn-dropdown no-caps unelevated :label="user && user.name" color="light-blue">
@@ -42,7 +76,7 @@
       >
         <q-scroll-area class="fit">
           <div class="text-center q-mt-md">
-            <img :src="vccImg" width="100" />
+            <img :src="vccImg" width="100"/>
           </div>
           <q-list class="q-mt-md">
             <w-menu :routes="routes"/>
@@ -119,7 +153,8 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none" style="font-weight: bold">
-          为了给您带来更加出色的服务品质及更好的客户体验，发卡行渠道将进行升级，2024.05.28之前创建的特定卡段将于<span style="color: red">2024.06.05 12:00</span>下线停用，受影响的卡在该日期后将无法继续使用。现说明如下：
+          为了给您带来更加出色的服务品质及更好的客户体验，发卡行渠道将进行升级，2024.05.28之前创建的特定卡段将于<span
+          style="color: red">2024.06.05 12:00</span>下线停用，受影响的卡在该日期后将无法继续使用。现说明如下：
           <br>
           <br>1. 受影响的卡，系统已在卡列表标记为<span style="color:red;">【红色】</span>。注意：其他未标记为红色的卡不受影响可继续正常使用。
           <br>2. 请记得在此之前，将这些卡片从您的支付平台和自动扣款服务中解绑，以免影响您的日常使用。
@@ -128,21 +163,24 @@
           <br>5.我们将为您返回开卡手续费，充值手续费，让您下次开卡时无需在支付该费用。
 
           <br>
-          <br>我们对上述变更对你造成的影响表示歉意。系统升级后，原有卡段可继续开卡使用，使用更加流畅：a) 卡限额提升 b) 有效期提升c) 卡操作更便捷。
+          <br>我们对上述变更对你造成的影响表示歉意。系统升级后，原有卡段可继续开卡使用，使用更加流畅：a) 卡限额提升 b)
+          有效期提升c) 卡操作更便捷。
           <br>
           <br>本次升级，只是让您的卡片信息更安全，使用周期更长，卡片管理操作更便捷！
           <br>
           <br>
-          <br><span style="color: red">卡费已全部退回，请注意查收，您可以在后台资金管理查看账单核实，如您需要任何帮助，请随时联系我们的在线客服</span>
+          <br><span
+          style="color: red">卡费已全部退回，请注意查收，您可以在后台资金管理查看账单核实，如您需要任何帮助，请随时联系我们的在线客服</span>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" v-close-popup />
+          <q-btn flat label="OK" color="primary" v-close-popup/>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <a target="_blank" href="https://t.me/LKJ118"><img style="position: fixed;right: 20px;bottom: 20px" src="/tgicon.svg" width="40px"/></a>
+    <a target="_blank" href="https://t.me/LKJ118"><img style="position: fixed;right: 20px;bottom: 20px"
+                                                       src="/tgicon.svg" width="40px"/></a>
   </div>
 
 </template>
@@ -167,7 +205,9 @@ export default {
       vccImg,
       routes,
       valida,
-      alert:false,
+      alert: false,
+      informList: [],
+      noReadCount: 0,
       user: null,
       client: null,
       expense: null,
@@ -192,28 +232,47 @@ export default {
     this.getCurrent()
     this.getClientCurrent()
     this.getExpense()
+    this.getInform()
+    setInterval(()=>{
+      this.getInform()
+    },10000)
+
   },
   methods: {
     getCurrent() {
-      this.$axios.$get('/user/current', {skipDefault: true}).then(res => {
+      this.$axios.$get('/user/current', {_skipLoading: true}).then(res => {
         this.user = res.content
         localStorage.setItem("current", JSON.stringify(this.user))
       })
     },
+    getInform() {
+      this.$axios.$get('/api_client_inform', {pageNumber: 1, pageSize: 3, read: false, _skipLoading: true}).then(res => {
+        this.informList = res.rows
+        this.noReadCount = res.total
+      })
+    },
+    allRead() {
+      this.$axios.$get('/api_client_inform/batch_read', { _skipLoading: true}).then(res => {
+        this.getInform()
+      })
+    },
+    detailClick2() {
+      this.$router.push('/inform_detail')
+    },
     getClientCurrent() {
-      this.$axios.$get('/api_client/current', {skipDefault: true}).then(res => {
+      this.$axios.$get('/api_client/current', {_skipLoading: true}).then(res => {
         this.client = res.content
         localStorage.setItem("client_current", JSON.stringify(this.client))
       })
     },
     getExpense() {
-      this.$axios.$get('/api_client/expense', {skipDefault: true}).then(res => {
+      this.$axios.$get('/api_client/expense', {_skipLoading: true}).then(res => {
         this.expense = res.content
         localStorage.setItem("expense", JSON.stringify(this.expense))
       })
     },
     logout() {
-      this.$axios.$post('/logout', null, {skipDefault: true})
+      this.$axios.$post('/logout', null, {_skipLoading: true})
         .catch(err => {
           console.error('退出异常' + err)
         })
@@ -275,4 +334,23 @@ export default {
 >>> .q-item__section--avatar {
   min-width: 0
 }
+
+.msg-card {
+  padding: 5px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.msg-card > div {
+  padding: 10px 0 5px 0;
+}
+
+.ellipsis {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
 </style>

@@ -166,7 +166,42 @@
                   <img src="/success.png" width="120%">
                 </template>
                 <template v-else>
-                  <div v-html="select.description"></div>
+                                    <div v-html="select.description"></div>
+<!--                  <div><b style="font-size: 22px">场景说明:</b><br>适用平台：Facebook, Google, Amazon, Open AI,PayPal，X-->
+<!--                    CORP，TikTok-->
+<!--                    ，ChatGPT，WIZA.CO，Shopify, Walmart, Alibaba, AliExpress 等/ 仅限正规-->
+<!--                    用途，严格控制拒付率，小额消费率，消费退款率 / 单笔消费限额$50000；年-->
+<!--                    消费限额$200000 / 有效期内可多次充值-->
+<!--                    <br>-->
+<!--                    <br> 跨境交易手续费：非美国商户及非 USD 币种结算点交易，跨境手续费为 1%，-->
+<!--                    卡内扣除。-->
+<!--                    <br>-->
+<!--                    <br>提示：该卡 BIN 禁止恶意拒付,授权撤销,小额交易,消费退款，如造成多次恶意-->
+<!--                    支付，将会<span style="color: red;cursor: pointer" onclick="ruleClick()">触发风控</span>进行处罚或销卡处理，请养成良好的支付习惯。-->
+<!--                  </div>-->
+                  <div :hidden="this.ruleHidden">
+                    <div v-html="select.ruleDescription"></div>
+<!--                    <br>-->
+<!--                    <br>-->
+<!--                    <b style="font-size: 22px">风控详情：</b>-->
+<!--                    <br>-->
+<!--                    <br>-->
+<!--                    <span style="color: red">交易授权手续费：</span>在商户消费的每笔授权交易手续费任何交易状态扣除0.3u，从用户账户余额扣除。-->
+<!--                    <br>-->
+<!--                    <br>-->
+<!--                    <span style="color: red">授权撤销手续费（ARF）：</span>每笔授权撤销费用=结算金额*3%，从用户账户余额扣除。（豁免授权结算金额为0的交易）-->
+<!--                    <br>-->
+<!--                    <br>-->
+<!--                    <span style="color: red">消费退款手续费（RTF）：</span>针对每笔消费退款=结算金额*5%，从用户账户余额扣除。（豁免授权的交易）-->
+<!--                    <br>-->
+<!--                    <br>-->
+<!--                    <span style="color: red">注意：</span>-->
+<!--                    <br>-->
+<!--                    1、单卡触发风控账户余额扣除失败超过5笔，系统将会作销卡处理，卡内余额退回账户余额。-->
+<!--                    <br>-->
+<!--                    <br>-->
+<!--                    2、如因风控扣费账户余额费时，平台系统将会提示，15天内且未充值账户余额，该账户将被冻结销卡，卡内余额不退回。-->
+                  </div>
                 </template>
               </div>
 
@@ -184,7 +219,7 @@
                       (val) => val !== null && val !== ''  || '请输入充值金额',
                       (val) => Number(val) >=  minAmount || '最低开卡额度 : $'+minAmount,
                       (val) => Number(val) <=  maxAmount || '最大开卡额度 : $'+maxAmount,
-                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
+                      (val) => Number(client.balance) >=  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
                     ]"
                          style="display: inline-block"
                          v-model="openRecharge.amount"
@@ -271,7 +306,7 @@
                          :rules="[
                       (val) => val !== null && val !== ''  || '请输入充值金额',
                       (val) => Number(val) <=  maxAmount || '最大开卡额度 : $'+maxAmount,
-                      (val) => Number(client.balance) >  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足',
+                      (val) => Number(client.balance) >=  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足',
                     ]"
                          style="display: inline-block"
                          v-model="cardRecharge.amount"
@@ -410,6 +445,10 @@
       </q-scroll-area>
     </q-drawer>
 
+<!--    <w-modal ref="ruleModal" title="风控说明" :show-button="false">-->
+<!--      <div v-html="select.ruleDescription"></div>-->
+<!--    </w-modal>-->
+
   </div>
 </template>
 
@@ -441,6 +480,7 @@ export default {
       drawer2: false,
       drawer3: false,
       drawer4: false,
+      ruleHidden:true,
       val: false,
       minAmount: 10,
       maxAmount: 100000,
@@ -541,6 +581,7 @@ export default {
     }
   },
   mounted() {
+    window.ruleClick =this.ruleClick
     if (this.$route.query && this.$route.query.id) {
       this.queryObj.taskId = this.$route.query.id
     }
@@ -563,6 +604,7 @@ export default {
   },
   methods: {
     input(card) {
+      this.ruleHidden = true
       if (card.adapterSign === 'dnk') {
         this.openRecharge.amount = 30
       } else if (card.adapterSign === 'vm-card2' || card.adapterSign === 'vm-card') {
@@ -603,16 +645,18 @@ export default {
         }
       })
     },
+    ruleClick() {
+      this.ruleHidden = !this.ruleHidden
+    },
     getExpense(bankId) {
       this.$axios.$get(`/api_client/expense?bankId=${bankId}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
-          console.log("进来了1！！" + this.expense)
           this.expense = res.content
-          console.log("进来了2！！" + this.expense)
         }
       })
     },
     cardClick(data) {
+      this.ruleHidden = true
       if (data.adapterSign === 'dnk') {
         this.openRecharge.amount = 30
       } else if (data.adapterSign === 'vm-card2' || data.adapterSign === 'vm-card') {
@@ -622,15 +666,16 @@ export default {
           this.openRecharge.amount = 21
         } else if (data.bin === '553437') {
           this.openRecharge.amount = 10
-        } else if (data.bin === '491090' || data.bin === '428836' || data.bin === '433451' || data.bin === '440872' || data.bin === '451946' || data.bin === '553437'){
+        } else if (data.bin === '491090' || data.bin === '428836' || data.bin === '433451' || data.bin === '440872' || data.bin === '451946' || data.bin === '553437') {
           this.openRecharge.amount = 10
-        }else {
+        } else {
           this.openRecharge.amount = 20
         }
 
       } else {
         this.openRecharge.amount = 10
-      }      this.minAmount = this.openRecharge.amount
+      }
+      this.minAmount = this.openRecharge.amount
       if (data.adapterSign === 'vm-card2') {
         this.maxAmount = 350
       } else {
@@ -638,6 +683,7 @@ export default {
       }
       this.drawer = true
       this.select = data
+      this.ruleHidden=true
       this.expense = this.getExpense(data.id)
     },
     cardClickFalse() {
@@ -745,6 +791,7 @@ export default {
       this.$router.push('/card_detail/' + data.id)
     },
     rechargeClick(data) {
+      this.ruleHidden = true
       if (data.adapterSign === 'dnk') {
         this.cardRecharge.amount = 30
       } else {
@@ -787,7 +834,7 @@ export default {
       this.queryObj.toDate = date.to
     },
     query() {
-      this.queryObj.pageNumber = 1
+      // this.queryObj.pageNumber = 1
       this.getList()
     },
     reset() {
@@ -820,7 +867,7 @@ export default {
       this.getList()
     },
     pageSizeChange(current) {
-      this.queryObj.pageNumber = 1
+      // this.queryObj.pageNumber = 1
       this.queryObj.pageSize = current
       this.getList()
     }

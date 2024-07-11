@@ -61,6 +61,15 @@ const routes = [
           title: '信用卡详情'
         },
       },
+      {
+        path: '/inform_detail',
+        hide:true,
+        component: () => import('pages/InformDetail.vue'),
+        icon: 'ti-clipboard',
+        meta: {
+          title: '消息中心'
+        },
+      },
       // {
       //   path: '/center',
       //   component: () => import('pages/Card.vue'),
