@@ -71,7 +71,7 @@
                  lazy-rules
                  :rules="[
                   val => val && val.length > 0 || '请输入充值金额',
-                  (val) => 10 <  Number(val) || '最低充值金额 10 USD',
+                  (val) => 10 <=  Number(val) || '最低充值金额 10 USD',
                   (val) =>  Number(val)%1===0 || '请输入充值金额为整数'
                 ]"
         >

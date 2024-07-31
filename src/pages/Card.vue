@@ -74,9 +74,9 @@
         </template>
 
         <template slot="action" slot-scope="row">
-          <q-btn flat @click.stop="detailClick2(row.data)" v-show="row.data.state === 1">详情</q-btn>
-          <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1">充值</q-btn>
-          <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1">销卡</q-btn>
+          <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1" style="background-color: #409EFF;color: white" class="q-mr-md">充值</q-btn>
+          <q-btn flat @click.stop="detailClick2(row.data)" v-show="row.data.state === 1" style="background-color: #409EFF;color: white" class="q-mr-md">详情</q-btn>
+          <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1" style="background-color: #F56C6C;color: white">销卡</q-btn>
         </template>
 
       </w-table>
@@ -788,7 +788,8 @@ export default {
       this.cardDetail = data
     },
     detailClick2(data) {
-      this.$router.push('/card_detail/' + data.id)
+      // this.$router.push('/card_detail/' + data.id)
+      window.open('/card_detail/' + data.id)
     },
     rechargeClick(data) {
       this.ruleHidden = true

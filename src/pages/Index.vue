@@ -89,7 +89,7 @@
         </div>
       </div>
     </div>
-    <div class="q-mt-md bg-white" style="">
+    <div class="q-mt-md bg-white" style="" v-show="false">
       <div>
         <div style="border-bottom: 1px solid rgba(0,0,0,0.1);border-radius: 5px;padding: 30px 15px" class="q-pa-md">
           <b style="font-size: 20px">用户等级</b>

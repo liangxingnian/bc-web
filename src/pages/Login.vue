@@ -2,6 +2,10 @@
   <div style="width: 100%" class="flex">
     <div style="width: 50%;background-color: rgba(0,0,0,0.02)" class="flex content-center">
       <div style="padding-left: 100px">
+        <div class="q-mt-md" style="margin-bottom: 40px">
+          <img :src="vccImg" width="100"/>
+<!--          <div class="flex q-ml-md">VccPay</div>-->
+        </div>
         <div class="text-center" style="font-weight: 600;font-size: 30px">VCC全球发卡业务</div>
         <div class="text-center q-my-md" style="font-size: 25px">支持 VISA 和 Mastercard 线上消费全场景</div>
         <div style="font-size: 20px">全球发卡业务是VCC与国际发卡机构合作推出的Visa /
@@ -50,6 +54,7 @@ import LoginForm from '../components/WLoginForm'
 import kdPicture from "src/assets/1102.svg";
 import cjPicture from "src/assets/1105.svg";
 import aqPicture from "src/assets/1101.svg";
+import vccImg from 'assets/vcc.png'
 
 export default {
   name: 'login',
@@ -58,6 +63,7 @@ export default {
   },
   data() {
     return {
+      vccImg,
       kdPicture,
       cjPicture,
       aqPicture
