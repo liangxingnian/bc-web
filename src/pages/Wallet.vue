@@ -85,9 +85,11 @@
     <w-modal ref="fundModal" title="USD充值" :show-button="false">
 
       <div>1. 仅接受<span style="color: red">USDT (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
-      <div>2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span style="color: red">0.3%</span>
+      <div v-if="client.id !=='0574411682126181'">2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span
+        style="color: red">0.3%</span>
         ，转账成功后将扣除手续费并入账至您的账户余额。
       </div>
+      <div v-else>2. 充值手续费：<span style="color: red">0.8%</span>，转账成功后将扣除手续费并入账至您的账户余额。</div>
       <div>3. 最低充值金额10，低于10系统不处理入账，需充值满10后系统自动入账。</div>
       <div>4. 系统自动确认到账，确认时间约<span style="color: red">10分钟</span>，超过30分钟未入账，可联系在线客服查询。
       </div>
@@ -175,6 +177,11 @@ export default {
         {
           value: 4,
           label: '加款',
+          color: 'black'
+        },
+        {
+          value: 7,
+          label: '资金转出',
           color: 'black'
         },
         {

@@ -19,10 +19,10 @@
       </div>
     </div>
     <div class="row q-col-gutter-lg q-mt-md">
-      <div class="col-3" v-for="card2 in clientBankCardList" :key="card2.id">
+      <div class="col-4" v-for="card2 in clientBankCardList" :key="card2.id">
         <w-card :data="card2" @click="cardClick"/>
       </div>
-      <div class="col-3" v-for="card in bankCardList" :key="card.id">
+      <div class="col-4" v-for="card in bankCardList" :key="card.id">
         <w-card :data="card" @click="cardClickFalse" style="background-color: #777986"/>
       </div>
     </div>
@@ -31,14 +31,17 @@
 
     <div class="q-pa-sm bg-white q-mt-lg">
       <div class="row items-center q-mb-sm">
-        <q-input :class="queryObj.size" outlined dense label="输入要搜索的卡号" clearable
+        <q-input :class="queryObj.size" outlined dense label="卡号或后四位" clearable
                  v-model="queryObj.number " style="min-width: 10em"
                  class="q-mr-sm q-mb-xs"/>
-        <q-select outlined dense label="输入要搜索的状态" clearable
+        <q-select outlined dense label="卡状态" clearable
                   v-model="queryObj.state" style="min-width: 10em"
                   :options="stateList" class="q-mr-sm q-mb-xs"
                   option-value="value" emit-value
                   option-label="label" map-options/>
+        <q-input :class="queryObj.size" outlined dense label="备注" clearable
+                 v-model="queryObj.remark " style="min-width: 10em"
+                 class="q-mr-sm q-mb-xs"/>
         <div class="q-mb-xs q-mr-sm">
           <q-btn unelevated class="q-mr-sm" @click="query" label="查询" padding="6px 26px"
                  style="background-color: #6BAAFC; color: #FFFFFF"/>
@@ -67,16 +70,29 @@
           {{ row.data.cvv ? row.data.cvv : '-' }}
         </template>
         <template slot="remark" slot-scope="row">
-          {{ row.data.remark ? row.data.remark : '-' }}
+          <q-btn flat color="black" @click="openRemark(row.data)">{{ row.data.remark ? row.data.remark : '-' }}
+            <q-tooltip content-style="font-size: 14px" anchor="top right" self="top left">
+              点击修改
+            </q-tooltip>
+          </q-btn>
         </template>
         <template slot="createTime" slot-scope="row">
           {{ row.data.createTime ? whc.Date.formatDateTime(new Date(row.data.createTime)) : '-' }}
         </template>
 
         <template slot="action" slot-scope="row">
-          <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1" style="background-color: #409EFF;color: white" class="q-mr-md">充值</q-btn>
-          <q-btn flat @click.stop="detailClick2(row.data)" v-show="row.data.state === 1" style="background-color: #409EFF;color: white" class="q-mr-md">详情</q-btn>
-          <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1" style="background-color: #F56C6C;color: white">销卡</q-btn>
+          <q-btn flat @click.stop="rechargeClick(row.data)" v-show="row.data.state === 1"
+                 style="background-color: #409EFF;color: white" class="q-mr-sm" size="12px">充值
+          </q-btn>
+          <q-btn flat @click.stop="detailClick2(row.data)" v-show="row.data.state === 1"
+                 style="background-color: #409EFF;color: white" class="q-mr-sm" size="12px">详情
+          </q-btn>
+          <q-btn flat @click="cashOutClick(row.data)" v-show="row.data.state === 1"
+                 style="background-color: #409EFF;color: white" class="q-mr-sm" size="12px">转出
+          </q-btn>
+          <q-btn flat @click="cancelClick(row.data)" v-show="row.data.state === 1"
+                 style="background-color: #F56C6C;color: white" size="12px">销卡
+          </q-btn>
         </template>
 
       </w-table>
@@ -151,7 +167,7 @@
                   <div class="item q-mt-lg">
                     <div class="title">预计扣款</div>
                     <span>{{
-                        Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)
+                        Number(openRecharge.count) * (Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100))
                       }} USD</span>
                   </div>
                   <div class="item q-mt-lg">
@@ -166,41 +182,41 @@
                   <img src="/success.png" width="120%">
                 </template>
                 <template v-else>
-                                    <div v-html="select.description"></div>
-<!--                  <div><b style="font-size: 22px">场景说明:</b><br>适用平台：Facebook, Google, Amazon, Open AI,PayPal，X-->
-<!--                    CORP，TikTok-->
-<!--                    ，ChatGPT，WIZA.CO，Shopify, Walmart, Alibaba, AliExpress 等/ 仅限正规-->
-<!--                    用途，严格控制拒付率，小额消费率，消费退款率 / 单笔消费限额$50000；年-->
-<!--                    消费限额$200000 / 有效期内可多次充值-->
-<!--                    <br>-->
-<!--                    <br> 跨境交易手续费：非美国商户及非 USD 币种结算点交易，跨境手续费为 1%，-->
-<!--                    卡内扣除。-->
-<!--                    <br>-->
-<!--                    <br>提示：该卡 BIN 禁止恶意拒付,授权撤销,小额交易,消费退款，如造成多次恶意-->
-<!--                    支付，将会<span style="color: red;cursor: pointer" onclick="ruleClick()">触发风控</span>进行处罚或销卡处理，请养成良好的支付习惯。-->
-<!--                  </div>-->
+                  <div v-html="select.description"></div>
+                  <!--                  <div><b style="font-size: 22px">场景说明:</b><br>适用平台：Facebook, Google, Amazon, Open AI,PayPal，X-->
+                  <!--                    CORP，TikTok-->
+                  <!--                    ，ChatGPT，WIZA.CO，Shopify, Walmart, Alibaba, AliExpress 等/ 仅限正规-->
+                  <!--                    用途，严格控制拒付率，小额消费率，消费退款率 / 单笔消费限额$50000；年-->
+                  <!--                    消费限额$200000 / 有效期内可多次充值-->
+                  <!--                    <br>-->
+                  <!--                    <br> 跨境交易手续费：非美国商户及非 USD 币种结算点交易，跨境手续费为 1%，-->
+                  <!--                    卡内扣除。-->
+                  <!--                    <br>-->
+                  <!--                    <br>提示：该卡 BIN 禁止恶意拒付,授权撤销,小额交易,消费退款，如造成多次恶意-->
+                  <!--                    支付，将会<span style="color: red;cursor: pointer" onclick="ruleClick()">触发风控</span>进行处罚或销卡处理，请养成良好的支付习惯。-->
+                  <!--                  </div>-->
                   <div :hidden="this.ruleHidden">
                     <div v-html="select.ruleDescription"></div>
-<!--                    <br>-->
-<!--                    <br>-->
-<!--                    <b style="font-size: 22px">风控详情：</b>-->
-<!--                    <br>-->
-<!--                    <br>-->
-<!--                    <span style="color: red">交易授权手续费：</span>在商户消费的每笔授权交易手续费任何交易状态扣除0.3u，从用户账户余额扣除。-->
-<!--                    <br>-->
-<!--                    <br>-->
-<!--                    <span style="color: red">授权撤销手续费（ARF）：</span>每笔授权撤销费用=结算金额*3%，从用户账户余额扣除。（豁免授权结算金额为0的交易）-->
-<!--                    <br>-->
-<!--                    <br>-->
-<!--                    <span style="color: red">消费退款手续费（RTF）：</span>针对每笔消费退款=结算金额*5%，从用户账户余额扣除。（豁免授权的交易）-->
-<!--                    <br>-->
-<!--                    <br>-->
-<!--                    <span style="color: red">注意：</span>-->
-<!--                    <br>-->
-<!--                    1、单卡触发风控账户余额扣除失败超过5笔，系统将会作销卡处理，卡内余额退回账户余额。-->
-<!--                    <br>-->
-<!--                    <br>-->
-<!--                    2、如因风控扣费账户余额费时，平台系统将会提示，15天内且未充值账户余额，该账户将被冻结销卡，卡内余额不退回。-->
+                    <!--                    <br>-->
+                    <!--                    <br>-->
+                    <!--                    <b style="font-size: 22px">风控详情：</b>-->
+                    <!--                    <br>-->
+                    <!--                    <br>-->
+                    <!--                    <span style="color: red">交易授权手续费：</span>在商户消费的每笔授权交易手续费任何交易状态扣除0.3u，从用户账户余额扣除。-->
+                    <!--                    <br>-->
+                    <!--                    <br>-->
+                    <!--                    <span style="color: red">授权撤销手续费（ARF）：</span>每笔授权撤销费用=结算金额*3%，从用户账户余额扣除。（豁免授权结算金额为0的交易）-->
+                    <!--                    <br>-->
+                    <!--                    <br>-->
+                    <!--                    <span style="color: red">消费退款手续费（RTF）：</span>针对每笔消费退款=结算金额*5%，从用户账户余额扣除。（豁免授权的交易）-->
+                    <!--                    <br>-->
+                    <!--                    <br>-->
+                    <!--                    <span style="color: red">注意：</span>-->
+                    <!--                    <br>-->
+                    <!--                    1、单卡触发风控账户余额扣除失败超过5笔，系统将会作销卡处理，卡内余额退回账户余额。-->
+                    <!--                    <br>-->
+                    <!--                    <br>-->
+                    <!--                    2、如因风控扣费账户余额费时，平台系统将会提示，15天内且未充值账户余额，该账户将被冻结销卡，卡内余额不退回。-->
                   </div>
                 </template>
               </div>
@@ -219,10 +235,27 @@
                       (val) => val !== null && val !== ''  || '请输入充值金额',
                       (val) => Number(val) >=  minAmount || '最低开卡额度 : $'+minAmount,
                       (val) => Number(val) <=  maxAmount || '最大开卡额度 : $'+maxAmount,
-                      (val) => Number(client.balance) >=  Number(val) + (Number(val) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100) || '余额不足'
+                      (val) => Number(client.balance) >=   Number(openRecharge.count)*(Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)) || '余额不足'
                     ]"
                          style="display: inline-block"
                          v-model="openRecharge.amount"
+                >
+                </q-input>
+              </div>
+              <div class="item">
+                <div class="title">开卡数量</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         lazy-rules
+                         :rules="[
+                      (val) => val !== null && val !== ''  || '请输入开卡数量',
+                      (val) => Number(val) >=  minCount || '最少开卡数量 : '+minCount,
+                      (val) => Number(val) <=  maxCount || '最大开卡数量 : '+maxCount,
+                      (val) => Number(client.balance) >=  Number(openRecharge.count)*(Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)) || '余额不足'
+                    ]"
+                         style="display: inline-block"
+                         v-model="openRecharge.count"
                 >
                 </q-input>
               </div>
@@ -350,7 +383,7 @@
               <div style="font-size: 18px; line-height: 30px;">
                 1、销卡不可撤销
                 <br>
-                2、发起销卡后无法再进行交易，
+                2、发起销卡后无法再进行交易
                 <br>
                 3、发起销卡后无法再收到退款
               </div>
@@ -445,9 +478,94 @@
       </q-scroll-area>
     </q-drawer>
 
-<!--    <w-modal ref="ruleModal" title="风控说明" :show-button="false">-->
-<!--      <div v-html="select.ruleDescription"></div>-->
-<!--    </w-modal>-->
+    <q-dialog v-model="bar2">
+      <q-card class="inner" style="width: 100%">
+        <q-card-section>
+          <div class="text-h6">修改备注</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <span>请输入新备注</span>
+        </q-card-section>
+
+        <q-card-section style="max-height: 50vh" class="scroll">
+          <q-input
+            v-model="remark"
+            dense outlined
+            type="text"
+          >
+          </q-input>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" @click="closeRemark"/>
+          <q-btn flat label="确定" color="primary" @click="cardRemarkEdit"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- 提现弹窗 -->
+    <q-dialog v-model="bar3">
+      <q-card class="inner" style="width: 100%">
+        <q-bar style="height: 70px;background-color: #e0efff">
+          <div style="font-size: 20px;font-weight: 600;padding: 0 0 0 12px">资金转出</div>
+          <q-space/>
+          <q-btn dense flat icon="close" v-close-popup>
+            <q-tooltip>Close</q-tooltip>
+          </q-btn>
+        </q-bar>
+
+        <q-card-section style="max-height: 50vh" class="scroll">
+          <div class="flex justify-center">
+            <q-form
+              class="q-gutter-sm"
+              ref="cardCashOutForm"
+              style="width: 90%;"
+            >
+              <div style="padding: 30px 0 20px 0"><span>扣款卡片</span></div>
+              <q-input
+                :label="cardNum"
+                dense outlined square disable
+                type="text"
+              >
+              </q-input>
+
+              <div style="padding: 10px 0 20px 0"><span>卡内可用余额</span></div>
+              <q-input
+                :label="this.showCardBalance+' USD'"
+                dense outlined square disable
+                type="text"
+              >
+              </q-input>
+
+              <div style="padding: 10px 0 20px 0"><span style="color: red">* </span><span>转出金额</span></div>
+              <q-input
+                v-model="modify.amount"
+                dense outlined clearable square
+                autocomplete="new-password"
+                lazy-rules
+                :rules="[
+                          val => val !== null && val !== ''  || '请输入转出金额',
+                          val => Number(showCardBalance) >=  Number(val) || '余额不足'
+                        ]"
+              >
+              </q-input>
+            </q-form>
+          </div>
+        </q-card-section>
+
+        <!--        <q-separator/>-->
+
+        <q-card-actions align="right">
+          <q-btn flat label="确定" color="primary" @click="cardCashOutSubmit"/>
+          <q-btn flat label="取消" color="primary" v-close-popup/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!--    <w-modal ref="ruleModal" title="风控说明" :show-button="false">-->
+    <!--      <div v-html="select.ruleDescription"></div>-->
+    <!--    </w-modal>-->
 
   </div>
 </template>
@@ -477,25 +595,36 @@ export default {
   data() {
     return {
       drawer: false,
+      bar2: false,
+      bar3: false,
       drawer2: false,
       drawer3: false,
       drawer4: false,
-      ruleHidden:true,
+      ruleHidden: true,
       val: false,
       minAmount: 10,
+      minCount: 1,
+      maxCount: 100,
       maxAmount: 100000,
       select: {},
+      modify: {
+        amount: '',
+      },
+      remark: '',
       getCurrentDate,
       whc: _whc,
       total: 0,
       cardNum: '',
       cardBalance: '',
+      showCardBalance: '',
+      tagsName: 'name',
       cardDetail: {},
       cardId: '',
       client: {},
       expense: {},
       openRecharge: {
         amount: 10,
+        count: 1,
         remark: ''
       },
       description: {
@@ -581,7 +710,7 @@ export default {
     }
   },
   mounted() {
-    window.ruleClick =this.ruleClick
+    window.ruleClick = this.ruleClick
     if (this.$route.query && this.$route.query.id) {
       this.queryObj.taskId = this.$route.query.id
     }
@@ -638,7 +767,7 @@ export default {
           this.list = res.rows
           this.list.forEach(item => {
             this.$set(item, 'balance', '')
-            if (item.state === 1 && (item.adapterSign === 'vm-card2' || item.adapterSign === 'vm-card')) {
+            if (item.state === 1 && (item.adapterSign === 'vm-card2' || item.adapterSign === 'vm-card' || item.adapterSign === 'ipe')) {
               this.getUserCardsBalance(item, true);
             }
           })
@@ -654,6 +783,15 @@ export default {
           this.expense = res.content
         }
       })
+    },
+    openRemark(data) {
+      this.cardId = data.id
+      this.bar2 = true
+    },
+    closeRemark() {
+      this.cardId = ''
+      this.remark = ''
+      this.bar2 = false
     },
     cardClick(data) {
       this.ruleHidden = true
@@ -683,16 +821,49 @@ export default {
       }
       this.drawer = true
       this.select = data
-      this.ruleHidden=true
+      this.ruleHidden = true
       this.expense = this.getExpense(data.id)
     },
     cardClickFalse() {
       this.$notify.error("您未开通开卡权限，请联系在线客服激活账户。")
     },
+    cardRemarkEdit() {
+      const cancelForm = {
+        userBankCardId: this.cardId,
+        remark: this.remark
+      }
+      this.$axios.$postForm('/api_client/edit_card', cancelForm).then((resp) => {
+        this.bar2 = false
+        this.getList()
+      })
+    },
     getUserCardsDetail() {
       this.$axios.$get('/api_client/card_detail', this.queryObj).then(res => {
         if (res && res.code === 0) {
           this.userCardsDetail = res.content
+        }
+      })
+    },
+    cardCashOutSubmit() {
+      // this.$axios.$get('/api_client/card_detail', this.queryObj).then(res => {
+      //   if (res && res.code === 0) {
+      //     this.userCardsDetail = res.content
+      //   }
+      // })
+
+      this.$refs.cardCashOutForm.validate().then(success => {
+        if (success) {
+          const cashOutForm = {
+            amount: this.modify.amount,
+          }
+          this.$axios.$postForm('/api_client/' + this.cardId + '/card_cash_out', cashOutForm).then((resp) => {
+            if (resp && resp.code === 0) {
+              this.modify.amount = ''
+              this.bar3 = false
+              this.cardNum = ''
+              this.showCardBalance = ''
+            }
+          })
         }
       })
     },
@@ -714,6 +885,7 @@ export default {
           } else {
             this.cardBalance = Number(res.content).toFixed(2) + ' USD';
           }
+          this.showCardBalance = Number(res.content).toFixed(2);
         } else {
           this.$notify.error("查询频繁")
         }
@@ -725,7 +897,8 @@ export default {
           const openForm = {
             bankCardId: select.id,
             amount: this.openRecharge.amount,
-            remark: this.openRecharge.remark
+            remark: this.openRecharge.remark,
+            count: this.openRecharge.count
           }
           this.$axios.$postForm('/api_client/open_card', openForm).then((resp) => {
             if (resp && resp.code === 0) {
@@ -796,7 +969,7 @@ export default {
       if (data.adapterSign === 'dnk') {
         this.cardRecharge.amount = 30
       } else {
-        if (data.bin === '534786' || data.bin === '553370' || data.bin === '404038') {
+        if ((data.adapterSign === 'vm-card2' || data.adapterSign === 'vm-card') && (data.bin === '534786' || data.bin === '553370' || data.bin === '404038')) {
           this.cardRecharge.amount = 21
         } else {
           this.cardRecharge.amount = 10
@@ -816,6 +989,12 @@ export default {
     },
     cancelClick(data) {
       this.drawer3 = true
+      this.cardId = data.id
+    },
+    cashOutClick(data) {
+      this.bar3 = true
+      this.getUserCardsBalance(data, true)
+      this.cardNum = data.number
       this.cardId = data.id
     },
     rechargeClose() {
@@ -917,5 +1096,9 @@ export default {
 
 .Ainput {
   width: calc(100% - 200px);
+}
+
+.inner {
+  max-width: 500px !important;
 }
 </style>

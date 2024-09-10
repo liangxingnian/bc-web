@@ -75,7 +75,7 @@
     </div>
 
     <div class="q-pa-sm bg-white q-mt-lg"
-         v-if="this.cardDetail.adapterSign === 'ppay'||this.cardDetail.adapterSign === 'vm-card'">
+         v-if="this.cardDetail.adapterSign === 'ppay'||this.cardDetail.adapterSign === 'vm-card' || this.cardDetail.adapterSign === 'ipe'">
       <div style="padding: 10px;border-bottom: 1px solid rgba(0,0,0,0.2);font-size: 22px"
            class="justify-between full-width">
         <span class="q-ml-md">地址信息</span>

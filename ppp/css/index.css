@@ -99,11 +99,38 @@
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
 }
 
+.price-wrapper{
+    max-width: 1108px;
+    margin: 120px auto 0 auto;
+}
+
+.price-card-wrapper{
+    display: flex;
+}
+
+.price-card{
+    margin: 40px 20px 0 20px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+    color: #666;
+    flex: 1;
+    border-left: 6px solid #4F3DF5;
+}
+
+.price-card > div{
+    margin: 5px 0;
+}
+
 .self-card-content {
     color: #666;
     padding-left: 25px;
     margin-top: 10px;
     border-left: 4px solid rgba(0, 0, 0, 0.05);
+}
+
+.self-card-content > div{
+    margin: 5px 0;
 }
 
 .multi-scenario {
@@ -211,23 +238,29 @@
     font-size: 14px;
 }
 
+.about-wrapper{
+    max-width: 900px;
+    margin: 50px auto;
+}
+
 .footer {
-    background-image: linear-gradient(180deg, #f4f6ff 0, #fff 100%);
+    background-color: #0f132e;
 }
 
 .footer-content {
     max-width: 1050px;
     margin: 0 auto;
-    padding: 30px 10px;
+    padding-top: 30px;
     font-size: 14px;
-    color: #666;
+    color: rgba(255,255,255, 0.7);
     display: flex;
     justify-content: space-between;
+    padding-bottom: 10px;
 }
 
 .footer-content a {
     text-decoration: none;
-    color: #666;
+    color: rgba(255,255,255, 0.7);
 }
 
 .footer-content a:hover {
@@ -251,6 +284,25 @@
     margin-bottom: 5px;
 }
 
-#nav-section, #card-section, #multi-section, #faq-section, #advantage-section, #privacy-section, #footer-section {
+.copyright{
+    font-size: 14px;
+    color: rgba(255,255,255, 0.5);
+    max-width: 1030px;
+    margin: 0 auto;
+    border-top: 1px solid rgba(255,255,255, 0.5);
+    padding: 20px 0;
+    display: flex;
+}
+
+.red-text-with-white-border {
+    color: red; /* 文字颜色 */
+    text-shadow:
+            -1px -1px 0 #fff,
+            1px -1px 0 #fff,
+            -1px  1px 0 #fff,
+            1px  1px 0 #fff; /* 设置文字阴影来创建白色边框效果 */
+}
+
+#nav-section, #card-section, #multi-section, #faq-section, #advantage-section, #privacy-section, #footer-section, #about-section, #price-section {
     scroll-margin-top: 80px;
 }
