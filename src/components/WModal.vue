@@ -12,7 +12,7 @@
       </q-card-section>
 
       <q-card-actions align="right" v-if="showButton">
-        <q-btn flat :label="cancelLabel" color="primary" v-close-popup/>
+        <q-btn flat :label="cancelLabel" color="primary" @click="cancel"/>
         <q-btn unelevated :label="okLabel" color="primary" @click="ok"/>
       </q-card-actions>
     </q-card>
@@ -102,6 +102,12 @@ export default {
     // 点击确定之后触发
     ok () {
       this.$emit('on-ok')
+    },
+
+    // 点击取消之后触发
+    cancel () {
+      this.hide()
+      this.$emit('on-cancel')
     }
   }
 }

@@ -251,19 +251,58 @@
       <!--      </q-card>-->
 
 
+      <!--      <q-card>-->
+      <!--        <q-card-section>-->
+      <!--          <div class="text-h6"><b>系统通知：</b></div>-->
+      <!--        </q-card-section>-->
+
+      <!--        <q-card-section class="q-pt-none" style="font-weight: bold">-->
+      <!--&lt;!&ndash;          现有部分卡怀疑异常需对该部分卡进行升级，系统需批量注销，卡内余额、开卡费、充值手续费系统将自动退回至账户余额，用户可重新开卡使用，对该升级是为了提供更稳定的卡服务，感谢您的理解与支持。&ndash;&gt;-->
+      <!--          <br>-->
+      <!--          <br>1、近期因发卡行系统的不稳定，造成了部分已开卡的突然销卡给您带来了不便，我们深感歉意，但是请放心我们将会保障各位用户权益将卡里余额、开卡费、充值手续费一并退回您账户后台，您可以重新开卡使用，8月1号新开的卡将会更稳定，将不会在出现类似突然销卡的情况。-->
+      <!--          <br>-->
+      <!--          <br>2、同时我们正在准备材料合同与另一家美国发卡行签合作，到时候会有新的卡上线，支持的场景更多、使用更稳定、卡费会更低，同时将会为使用量大的用户提供专属优惠，请各位用户稍微等待一下，届时我们将会提供更优质的卡服务，感谢大家对VCC的理解与支持。-->
+      <!--          <br>-->
+      <!--          <br>3、如您有问题或疑问，可联系在线客服咨询。-->
+      <!--        </q-card-section>-->
+
+      <!--        <q-card-actions align="right">-->
+      <!--          <q-btn flat label="OK" color="primary" v-close-popup/>-->
+      <!--        </q-card-actions>-->
+      <!--      </q-card>-->
+
       <q-card>
         <q-card-section>
-          <div class="text-h6"><b>系统通知：</b></div>
+          <!--          <div class="text-h6"><b>系统通知：</b></div>-->
+          <div><img :src="zhongqiu" height="300" width="400" style="margin-left: 62px"/></div>
         </q-card-section>
 
         <q-card-section class="q-pt-none" style="font-weight: bold">
-<!--          现有部分卡怀疑异常需对该部分卡进行升级，系统需批量注销，卡内余额、开卡费、充值手续费系统将自动退回至账户余额，用户可重新开卡使用，对该升级是为了提供更稳定的卡服务，感谢您的理解与支持。-->
+          尊敬的用户：
           <br>
-          <br>1、近期因发卡行系统的不稳定，造成了部分已开卡的突然销卡给您带来了不便，我们深感歉意，但是请放心我们将会保障各位用户权益将卡里余额、开卡费、充值手续费一并退回您账户后台，您可以重新开卡使用，8月1号新开的卡将会更稳定，将不会在出现类似突然销卡的情况。
+          丹桂玉兔中秋月，阖家团圆笑语扬。中秋佳节将至，VCC平台向您及您的家人致以最美好的祝愿，花好月圆，祝您中秋快乐，家庭幸福，万事顺意！
           <br>
-          <br>2、同时我们正在准备材料合同与另一家美国发卡行签合作，到时候会有新的卡上线，支持的场景更多、使用更稳定、卡费会更低，同时将会为使用量大的用户提供专属优惠，请各位用户稍微等待一下，届时我们将会提供更优质的卡服务，感谢大家对VCC的理解与支持。
+          温馨提示：中秋假期（2024.9.15-2024.9.17）
           <br>
-          <br>3、如您有问题或疑问，可联系在线客服咨询。
+          为了确保您在此期间正常使用平台各项功能，请您提前规划好资金、业务安排。如有任何紧急问题，请与我们客服联系，我们将竭诚为您服务。
+          <br>
+          感谢您对VCC一直以来的支持与信任，我们会持续努力，为您提供更优质的服务！
+          <br>
+          <br>
+          Dear users:
+          <br>
+          Dangui Yutu Mid-Autumn Moon, the whole family is reunited and laughing. The Mid-Autumn Festival is
+          approaching, and the VCC platform sends you and your family the best wishes. May the flowers bloom and the
+          moon be full. I wish you a happy Mid-Autumn Festival, a happy family, and everything goes well!
+          <br>
+          Warm reminder: Mid-Autumn Festival holiday (2024.9.15-2024.9.17)
+          <br>
+          In order to ensure that you can use the various functions of the platform normally during this period, please
+          plan your funds and business arrangements in advance. If you have any urgent questions, please contact our
+          customer service, we will serve you wholeheartedly.
+          <br>
+          Thank you for your continued support and trust in VCC. We will continue to work hard to provide you with
+          better services!
         </q-card-section>
 
         <q-card-actions align="right">
@@ -272,25 +311,40 @@
       </q-card>
 
 
-<!--      <q-card>-->
-<!--        <q-card-section>-->
-<!--          <div class="text-h6"><b>维护通知：</b></div>-->
-<!--        </q-card-section>-->
+      <!--      <q-card>-->
+      <!--        <q-card-section>-->
+      <!--          <div class="text-h6"><b>维护通知：</b></div>-->
+      <!--        </q-card-section>-->
 
-<!--        <q-card-section class="q-pt-none" style="font-weight: bold">-->
-<!--          临时维护预计晚点恢复-->
-<!--        </q-card-section>-->
+      <!--        <q-card-section class="q-pt-none" style="font-weight: bold">-->
+      <!--          临时维护预计晚点恢复-->
+      <!--        </q-card-section>-->
 
-<!--        <q-card-actions align="right">-->
-<!--          <q-btn flat label="OK" color="primary" v-close-popup/>-->
-<!--        </q-card-actions>-->
-<!--      </q-card>-->
+      <!--        <q-card-actions align="right">-->
+      <!--          <q-btn flat label="OK" color="primary" v-close-popup/>-->
+      <!--        </q-card-actions>-->
+      <!--      </q-card>-->
     </q-dialog>
 
-    <a target="_blank" href="https://t.me/LKJ118"><img style="position: fixed;right: 20px;bottom: 20px"
-                                                       src="/tgicon.svg" width="40px"/></a>
-<!--    <a target="_blank" href="https://t.me/LKJ11188"><img style="position: fixed;right: 20px;bottom: 20px"-->
-<!--                                                       src="/tgicon.svg" width="40px"/></a>-->
+    <a target="_blank" href="https://t.me/LKJ118">
+      <img style="position: fixed;right: 20px;bottom: 182px" src="/tgicon.svg" width="40px"/>
+      <span style="position: fixed;right: 20px;bottom: 160px;color: grey">TG客服</span>
+    </a>
+
+    <a target="_blank" href="https://t.me/LKJ1188">
+      <img style="position: fixed;right: 20px;bottom: 112px" src="/tgicon.svg" width="40px"/>
+      <span style="position: fixed;right: 20px;bottom: 90px;color: grey">TG频道</span></a>
+
+    <div style="position: fixed;right: 20px;bottom: 42px" @click="copy('ppay71845@gmail.com')">
+      <img style="position: fixed;right: 20px;bottom: 42px" src="/email2.png" width="40px"/>
+      <span style="position: fixed;right: 20px;bottom: 20px;color: grey">Email</span>
+      <q-tooltip content-style="font-size: 14px" anchor="top right" self="top left">
+        ppay71845@gmail.com
+      </q-tooltip>
+    </div>
+
+    <!--    <a target="_blank" href="https://t.me/LKJ11188"><img style="position: fixed;right: 20px;bottom: 20px"-->
+    <!--                                                       src="/tgicon.svg" width="40px"/></a>-->
   </div>
 
 </template>
@@ -303,6 +357,8 @@ import {KJUR} from 'jsrsasign'
 import WLink from 'src/components/WLink'
 import valida from 'src/morejs/clients'
 import vccImg from 'assets/vcc.png'
+import zhongqiu from 'assets/zhongqiu.png'
+import {copyText} from "src/morejs/utils";
 
 export default {
   name: 'MainLayout',
@@ -314,6 +370,7 @@ export default {
     return {
       bar2: false,
       vccImg,
+      zhongqiu,
       routes,
       valida,
       alert: false,
@@ -354,6 +411,12 @@ export default {
       this.$axios.$get('/user/current', {_skipLoading: true}).then(res => {
         this.user = res.content
         localStorage.setItem("current", JSON.stringify(this.user))
+      })
+    },
+    copy(code) {
+      console.log(code)
+      copyText(code, () => {
+        this.$notify.success('复制成功')
       })
     },
     getInform() {
@@ -470,6 +533,7 @@ export default {
   text-overflow: ellipsis;
   white-space: normal;
 }
+
 .inner {
   max-width: 800px !important;
 }

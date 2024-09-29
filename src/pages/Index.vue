@@ -32,14 +32,14 @@
         <div style="max-width: 70%;margin: 0 auto">
           <div class="flex justify-between">
             <router-link to="/wallet">
-            <div class="flex column items-center">
-              <div class="flex items-center">
-                <img :src="balance" width="40">
-                <b class="q-ml-sm" style="font-size: 20px">账户入金</b>
+              <div class="flex column items-center">
+                <div class="flex items-center">
+                  <img :src="balance" width="40">
+                  <b class="q-ml-sm" style="font-size: 20px">账户入金</b>
+                </div>
               </div>
-            </div>
             </router-link>
-<!--            <div class="grade4"></div>-->
+            <!--            <div class="grade4"></div>-->
             <router-link to="/card">
               <div class="flex column items-center">
                 <div class="flex items-center">
@@ -49,12 +49,12 @@
               </div>
             </router-link>
             <router-link to="/card">
-            <div class="flex column items-center">
-              <div class="flex items-center">
-                <img :src="cardlist" width="35">
-                <b class="q-ml-sm" style="font-size: 20px">卡列表</b>
+              <div class="flex column items-center">
+                <div class="flex items-center">
+                  <img :src="cardlist" width="35">
+                  <b class="q-ml-sm" style="font-size: 20px">卡列表</b>
+                </div>
               </div>
-            </div>
             </router-link>
           </div>
         </div>
@@ -71,6 +71,7 @@
               <img :src="balance" width="40">
               <b class="q-ml-sm" style="font-size: 20px">$ {{ client.balance }}</b>
             </div>
+            <b style="cursor: pointer" @click="cashOutClick">提现</b>
           </div>
           <div class="flex column items-center">
             <b>总入金</b>
@@ -117,7 +118,62 @@
 
       </div>
     </div>
-<!--    <div class="bg-white" style="height: 30vh"></div>-->
+    <!--    <div class="bg-white" style="height: 30vh"></div>-->
+
+    <w-modal ref="cashOutModal" title="账户余额提现" @on-ok="cashOut" min-width="550px">
+      <q-form class="q-gutter-sm" ref="cashOutRefs">
+        <q-input v-model="client.balance"
+                 dense outlined square disable
+        >
+          <template v-slot:before>
+            <div class="labelStyle">可提现余额：</div>
+          </template>
+        </q-input>
+        <q-input label="3%"
+                 dense outlined square disable
+        >
+          <template v-slot:before>
+            <div class="labelStyle">提现手续费：</div>
+          </template>
+        </q-input>
+        <q-input :label="Number(Number(cashOutForm.amount)*0.97).toFixed(2)"
+                 dense outlined square disable
+        >
+          <template v-slot:before>
+            <div class="labelStyle">到账金额$：</div>
+          </template>
+        </q-input>
+        <q-input v-model="cashOutForm.amount"
+                 dense outlined clearable square
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入提现金额',
+                  (val) => 30 <=  Number(val) || '最低提现金额 30 USDT',
+                  val=>(/^\d+(\.\d{1,4})?$/.test(val) || '输入的数字最多4位小数'),
+                  (val) => Number(client.balance) >=  Number(val)  || '余额不足'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">提现金额$：</div>
+          </template>
+        </q-input>
+        <q-input v-model="cashOutForm.address"
+                 dense outlined clearable square
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 && val.length ===34 || '请输入有效的USDT-TRC20提现地址',
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">USDT-TRC20 址：</div>
+          </template>
+        </q-input>
+        <div class="q-ml-lg" style="color: rgba(0, 0, 0, 0.54)">请核对提现账户信息确保无误，提现请求<span
+          style="color: red">48小时</span>内处理完成，客服不处理紧急提现请求。
+        </div>
+      </q-form>
+    </w-modal>
+
   </div>
 </template>
 
@@ -143,6 +199,9 @@ export default {
       client: {},
       article: [],
       expense: {},
+      cashOutForm: {
+        amount: null,
+      },
       isMore: false
     }
   },
@@ -173,7 +232,28 @@ export default {
     },
     more() {
 
-    }
+    },
+    cashOutClick() {
+      this.getClientCurrent()
+      this.$refs.cashOutModal.show()
+    },
+    cashOut() {
+      this.$refs.cashOutRefs.validate().then(success => {
+        if (success) {
+          const rechargeForm = {
+            amount: this.cashOutForm.amount,
+            address: this.cashOutForm.address,
+          }
+          this.$axios.$postForm('/api_client/cash_out', rechargeForm).then((resp) => {
+            if (resp && resp.code === 0) {
+              this.$refs.cashOutModal.hide()
+              this.cashOutForm.amount = null
+              this.cashOutForm.address = null
+            }
+          })
+        }
+      })
+    },
   }
 }
 </script>
@@ -194,8 +274,7 @@ export default {
 }
 
 .tip {
-//margin-top: 30px; background-color:$orange-1;
-  padding: 10px;
+//margin-top: 30px; background-color:$orange-1; padding: 10px;
   border-radius: 5px;
 }
 
@@ -227,5 +306,11 @@ export default {
 a {
   text-decoration: none;
   color: #1D1D1D;
+}
+
+.labelStyle {
+  font-size: 14px;
+  width: 120px;
+  text-align: right;
 }
 </style>

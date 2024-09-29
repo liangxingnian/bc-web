@@ -206,6 +206,7 @@ export default {
       this.hoverIndex = -1
     },
     clear () {
+      this.all=false
       this.selectList = []
     }
   }

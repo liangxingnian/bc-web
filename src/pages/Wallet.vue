@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card class="my-card bg-white q-pa-sm" style="width: 300px">
+    <q-card class="my-card bg-white q-pa-sm" style="width: 350px">
       <q-card-section>
         <div class="flex">
           <q-img :src="UsdImg" style="height: 45px;width: 45px"></q-img>
@@ -10,7 +10,11 @@
           </div>
         </div>
         <div class="float-right">
-          <q-btn color="light-blue" @click="rechargeClick">充值</q-btn>
+          <q-btn color="light-blue" @click="rechargeClick" class="q-mr-md">充值</q-btn>
+<!--          <q-btn style="background-color: #EF4C4D;color: white" @click="cashOutClick">提现</q-btn>-->
+<!--          <q-btn v-if="client.id === '6445355038400348'" style="background-color: #EF4C4D;color: white"-->
+<!--                 @click="cashOutClick">提现-->
+<!--          </q-btn>-->
         </div>
       </q-card-section>
 
@@ -82,16 +86,68 @@
       </q-form>
     </w-modal>
 
+    <w-modal ref="cashOutModal" title="账户余额提现" @on-ok="cashOut" min-width="550px">
+      <q-form class="q-gutter-sm" ref="cashOutRefs">
+        <q-input v-model="client.balance"
+                 dense outlined square disable
+        >
+          <template v-slot:before>
+            <div class="labelStyle">可提现余额：</div>
+          </template>
+        </q-input>
+        <q-input label="3%"
+                 dense outlined square disable
+        >
+          <template v-slot:before>
+            <div class="labelStyle">提现手续费：</div>
+          </template>
+        </q-input>
+        <q-input :label="Number(Number(cashOutForm.amount)*0.97).toFixed(2)"
+                 dense outlined square disable
+        >
+          <template v-slot:before>
+            <div class="labelStyle">到账金额$：</div>
+          </template>
+        </q-input>
+        <q-input v-model="cashOutForm.amount"
+                 dense outlined clearable square
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 || '请输入提现金额',
+                  (val) => 30 <=  Number(val) || '最低提现金额 30 USDT',
+                  val=>(/^\d+(\.\d{1,4})?$/.test(val) || '输入的数字最多4位小数'),
+                  (val) => Number(client.balance) >=  Number(val)  || '余额不足'
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">提现金额$：</div>
+          </template>
+        </q-input>
+        <q-input v-model="cashOutForm.address"
+                 dense outlined clearable square
+                 lazy-rules
+                 :rules="[
+                  val => val && val.length > 0 && val.length ===34 || '请输入有效的USDT-TRC20提现地址',
+                ]"
+        >
+          <template v-slot:before>
+            <div class="labelStyle">USDT-TRC20 址：</div>
+          </template>
+        </q-input>
+        <div class="q-ml-lg" style="color: rgba(0, 0, 0, 0.54)">请核对提现账户信息确保无误，提现请求<span style="color: red">48小时</span>内处理完成，客服不处理紧急提现请求。</div>
+      </q-form>
+    </w-modal>
+
     <w-modal ref="fundModal" title="USD充值" :show-button="false">
 
       <div>1. 仅接受<span style="color: red">USDT (TRC20)</span>转账，转入非USDT(TRC20)将无法到账，造成资金损失。</div>
-      <div v-if="client.id !=='0574411682126181'">2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.5%</span>；X＞500，手续费<span
-        style="color: red">0.3%</span>
+      <div v-if="client.id !=='0574411682126181'">2. 充值手续费：10≤X≤ 500USDT，手续费<span style="color: red">0.3%</span>；X＞500，手续费<span
+        style="color: red">0.1%</span>
         ，转账成功后将扣除手续费并入账至您的账户余额。
       </div>
       <div v-else>2. 充值手续费：<span style="color: red">0.8%</span>，转账成功后将扣除手续费并入账至您的账户余额。</div>
       <div>3. 最低充值金额10，低于10系统不处理入账，需充值满10后系统自动入账。</div>
-      <div>4. 系统自动确认到账，确认时间约<span style="color: red">10分钟</span>，超过30分钟未入账，可联系在线客服查询。
+      <div>4. 系统自动确认到账，确认时间约<span style="color: red">2分钟</span>，超过30分钟未入账，可联系在线客服查询。
       </div>
       <div>5. 请<span style="color: red">仔细核对转账地址</span>，如由于剪切板内容被篡改导致转账地址错误，我司不承担损失。
       </div>
@@ -99,6 +155,7 @@
       <div>请往已给地址发送以下金额以完成余额充值，此次充值完成会在余额内增加 <span
         style="color: red">{{ this.dataForm.amount }}</span> USDT
       </div>
+      <div>请在<span style="color: red">30分钟</span>内支付完成，否则<span style="color: red">订单失效</span>。</div>
       <br>
       <div>付款金额 (点击复制) : <span class="text" @click="copy(fundForm.amount)"
                                        style="color: #26A69A">{{ this.fundForm.amount }}</span> （付款金额包括小数点）
@@ -144,6 +201,9 @@ export default {
       dataForm: {
         amount: null,
       },
+      cashOutForm: {
+        amount: null,
+      },
       fundForm: {
         amount: null,
         address: null,
@@ -182,6 +242,16 @@ export default {
         {
           value: 7,
           label: '资金转出',
+          color: 'black'
+        },
+        {
+          value: 8,
+          label: '余额提现',
+          color: 'black'
+        },
+        {
+          value: 9,
+          label: '提现退回',
           color: 'black'
         },
         {
@@ -279,6 +349,10 @@ export default {
     rechargeClick() {
       this.$refs.addNewModal.show()
     },
+    cashOutClick() {
+      this.getClientCurrent()
+      this.$refs.cashOutModal.show()
+    },
     recharge() {
       this.$refs.addNewAccountRefs.validate().then(success => {
         if (success) {
@@ -291,6 +365,21 @@ export default {
               this.fundForm.amount = resp.content.amount
               this.fundForm.address = resp.content.address
               this.$refs.fundModal.show()
+            }
+          })
+        }
+      })
+    },
+    cashOut() {
+      this.$refs.cashOutRefs.validate().then(success => {
+        if (success) {
+          const rechargeForm = {
+            amount: this.cashOutForm.amount,
+            address: this.cashOutForm.address,
+          }
+          this.$axios.$postForm('/api_client/cash_out', rechargeForm).then((resp) => {
+            if (resp && resp.code === 0) {
+              this.$refs.cashOutModal.hide()
             }
           })
         }

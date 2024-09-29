@@ -22,7 +22,7 @@ axios.interceptors.request.use(config => {
   let loading = true
   if (config.data && dataType(config.data) === 'String') {
     // 批量添加外部商品编号映射不去除空格
-    if (!config.url.includes('/purchaser/batch_add')) {
+    if (!config.url.includes('/api_client/open_card')) {
       config.data = strToObj(config.data)
     }
   }

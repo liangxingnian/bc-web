@@ -45,9 +45,13 @@
         <div class="q-mb-xs q-mr-sm">
           <q-btn unelevated class="q-mr-sm" @click="query" label="查询" padding="6px 26px"
                  style="background-color: #6BAAFC; color: #FFFFFF"/>
+          <q-btn unelevated class="q-mr-sm" @click="batchCancelCard" label="批量删卡" padding="6px 26px"
+                 style="background-color: #EF4C4D; color: #FFFFFF"/>
         </div>
       </div>
-      <w-table key-field="id" :list="list" :columns="columns" :has-header="false" list-type="purchaser">
+      <w-table key-field="id" :list="list" :columns="columns" :has-header="false" list-type="purchaser"
+               :selection="selected"
+               @on-change="changeCheck" @on-change-all="changeAllCheck" ref="listTable">
         <template slot="number" slot-scope="row">
           {{ row.data.number ? row.data.number : '-' }}
         </template>
@@ -183,46 +187,120 @@
                 </template>
                 <template v-else>
                   <div v-html="select.description"></div>
-                  <!--                  <div><b style="font-size: 22px">场景说明:</b><br>适用平台：Facebook, Google, Amazon, Open AI,PayPal，X-->
-                  <!--                    CORP，TikTok-->
-                  <!--                    ，ChatGPT，WIZA.CO，Shopify, Walmart, Alibaba, AliExpress 等/ 仅限正规-->
-                  <!--                    用途，严格控制拒付率，小额消费率，消费退款率 / 单笔消费限额$50000；年-->
-                  <!--                    消费限额$200000 / 有效期内可多次充值-->
-                  <!--                    <br>-->
-                  <!--                    <br> 跨境交易手续费：非美国商户及非 USD 币种结算点交易，跨境手续费为 1%，-->
-                  <!--                    卡内扣除。-->
-                  <!--                    <br>-->
-                  <!--                    <br>提示：该卡 BIN 禁止恶意拒付,授权撤销,小额交易,消费退款，如造成多次恶意-->
-                  <!--                    支付，将会<span style="color: red;cursor: pointer" onclick="ruleClick()">触发风控</span>进行处罚或销卡处理，请养成良好的支付习惯。-->
-                  <!--                  </div>-->
                   <div :hidden="this.ruleHidden">
                     <div v-html="select.ruleDescription"></div>
-                    <!--                    <br>-->
-                    <!--                    <br>-->
-                    <!--                    <b style="font-size: 22px">风控详情：</b>-->
-                    <!--                    <br>-->
-                    <!--                    <br>-->
-                    <!--                    <span style="color: red">交易授权手续费：</span>在商户消费的每笔授权交易手续费任何交易状态扣除0.3u，从用户账户余额扣除。-->
-                    <!--                    <br>-->
-                    <!--                    <br>-->
-                    <!--                    <span style="color: red">授权撤销手续费（ARF）：</span>每笔授权撤销费用=结算金额*3%，从用户账户余额扣除。（豁免授权结算金额为0的交易）-->
-                    <!--                    <br>-->
-                    <!--                    <br>-->
-                    <!--                    <span style="color: red">消费退款手续费（RTF）：</span>针对每笔消费退款=结算金额*5%，从用户账户余额扣除。（豁免授权的交易）-->
-                    <!--                    <br>-->
-                    <!--                    <br>-->
-                    <!--                    <span style="color: red">注意：</span>-->
-                    <!--                    <br>-->
-                    <!--                    1、单卡触发风控账户余额扣除失败超过5笔，系统将会作销卡处理，卡内余额退回账户余额。-->
-                    <!--                    <br>-->
-                    <!--                    <br>-->
-                    <!--                    2、如因风控扣费账户余额费时，平台系统将会提示，15天内且未充值账户余额，该账户将被冻结销卡，卡内余额不退回。-->
                   </div>
                 </template>
               </div>
 
             </div>
-
+            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+              <div v-if="!expanded" class="title" style="cursor: pointer;color: #3dd5f3" @click="exchange(expanded)">
+                手动填写地址
+              </div>
+              <div v-else class="title" style="cursor: pointer;color: #3dd5f3" @click="exchange(expanded)">默认地址
+              </div>
+            </div>
+            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+              <div class="item">
+                <div class="title">国家</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         disable
+                         style="display: inline-block"
+                         label="United States of America"
+                >
+                </q-input>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">洲</div>
+                <q-select outlined
+                          dense
+                          clearable
+                          v-model="openRecharge.state"
+                          :disable="!expanded"
+                          style="display: inline-block"
+                          :options="countryList"
+                          class="Ainput"
+                          option-value="value"
+                          emit-value
+                          option-label="label"
+                          map-options/>
+              </div>
+              <div class="item q-mt-lg">
+                <div class="title">城市</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         :disable="!expanded"
+                         lazy-rules
+                         :rules="[
+                      (val) => val !== null && val !== ''  || '请输入城市']"
+                         style="display: inline-block"
+                         v-model="openRecharge.city"
+                >
+                </q-input>
+              </div>
+              <div class="item">
+                <div class="title">街道地址</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         :disable="!expanded"
+                         lazy-rules
+                         :rules="[
+                      (val) => val !== null && val !== ''  || '请输入街道地址']"
+                         style="display: inline-block"
+                         v-model="openRecharge.address"
+                >
+                </q-input>
+              </div>
+              <div class="item">
+                <div class="title">邮编</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         :disable="!expanded"
+                         lazy-rules
+                         :rules="[
+                      (val) => val !== null && val !== ''  || '请输入邮编',
+                      (val) => val.length ===5  || '请输入正确的邮编'
+                      ]"
+                         style="display: inline-block"
+                         v-model="openRecharge.zipCode"
+                >
+                </q-input>
+              </div>
+              <div class="item">
+                <div class="title">姓</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         :disable="!expanded"
+                         lazy-rules
+                         :rules="[
+                      (val) => val !== null && val !== ''  || '请输入姓']"
+                         style="display: inline-block"
+                         v-model="openRecharge.lastName"
+                >
+                </q-input>
+              </div>
+              <div class="item">
+                <div class="title">名字</div>
+                <q-input class="Ainput"
+                         outlined
+                         dense
+                         :disable="!expanded"
+                         lazy-rules
+                         :rules="[
+                      (val) => val !== null && val !== ''  || '请输入名字']"
+                         style="display: inline-block"
+                         v-model="openRecharge.firstName"
+                >
+                </q-input>
+              </div>
+            </div>
 
             <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
               <div class="item">
@@ -233,6 +311,7 @@
                          lazy-rules
                          :rules="[
                       (val) => val !== null && val !== ''  || '请输入充值金额',
+                      val=>(/^\d+(\.\d{1,3})?$/.test(val) || '最多输入3位小数'),
                       (val) => Number(val) >=  minAmount || '最低开卡额度 : $'+minAmount,
                       (val) => Number(val) <=  maxAmount || '最大开卡额度 : $'+maxAmount,
                       (val) => Number(client.balance) >=   Number(openRecharge.count)*(Number(openRecharge.amount) + Number(expense.openCardFeeAmount) + (Number(openRecharge.amount) * Number.parseFloat(expense.rechargeFeeAmountRate) / 100)) || '余额不足'
@@ -546,7 +625,8 @@
                 lazy-rules
                 :rules="[
                           val => val !== null && val !== ''  || '请输入转出金额',
-                          val => Number(showCardBalance) >=  Number(val) || '余额不足'
+                          val => Number(showCardBalance) >=  Number(val) || '余额不足',
+                          val=>(/^\d+(\.\d{1,3})?$/.test(val) || '最多输入3位小数'),
                         ]"
               >
               </q-input>
@@ -562,6 +642,16 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <w-modal ref="selectModal" title="批量删卡" @on-ok="batchCancelCard2" @on-cancel="cancelBatchCancelCard" min-width="500px">
+      <div>1、请确认选择的卡号是需要进行销卡的卡号</div>
+      <div>2、销卡操作<span style="color: red">不可撤销</span></div>
+      <div>3、发起销卡后该卡<span style="color: red">无法再进行交易</span></div>
+      <div>4、发起销卡后该卡<span style="color: red">无法再收到退款</span></div>
+      <br>
+      <div>批量销卡为异步操作，点击确认按钮后。</div>
+      <div>若看到选择的卡还为【激活】状态，请稍等几分钟后再刷新列表查看。</div>
+    </w-modal>
 
     <!--    <w-modal ref="ruleModal" title="风控说明" :show-button="false">-->
     <!--      <div v-html="select.ruleDescription"></div>-->
@@ -581,6 +671,7 @@ import {getCurrentDate} from "src/morejs/utils";
 import {_whc} from "src/morejs/_whc";
 import crypt from "src/morejs/crypt";
 import {KJUR} from "jsrsasign";
+import {clear} from "core-js/internals/task";
 
 export default {
   components: {
@@ -594,6 +685,7 @@ export default {
   name: 'PageIndex',
   data() {
     return {
+      expanded: false,
       drawer: false,
       bar2: false,
       bar3: false,
@@ -602,6 +694,7 @@ export default {
       drawer4: false,
       ruleHidden: true,
       val: false,
+      selected: false,
       minAmount: 10,
       minCount: 1,
       maxCount: 100,
@@ -625,7 +718,13 @@ export default {
       openRecharge: {
         amount: 10,
         count: 1,
-        remark: ''
+        remark: '',
+        firstName: 'Edgar',
+        lastName: 'Hettinger',
+        city: 'San Jose',
+        address: '2381 Zanker Rd Ste 110',
+        state: 'CA',
+        zipCode: '95131',
       },
       description: {
         '440872|451946|485997|556371': `推荐在Facebook、Google、Telegram、TikTok、Amazon、PayPal、Apple、TWITTER、Linked、Shopify、Walmart、YouTube、Alibaba、eBay、TAOBAO、Alipay、RISER、viber、Infobip、AliExpress等场景上付款。
@@ -638,6 +737,7 @@ export default {
         remark: ''
       },
       proxyList: [],
+      selectIdList: [],
       bankCardList: [],
       clientBankCardList: [],
       allCrList: [],
@@ -648,6 +748,224 @@ export default {
         pageSize: 10
       },
       stateList: [
+        {
+          value: 1,
+          label: '有效卡',
+          color: '#b14fa2'
+        },
+        {
+          value: 0,
+          label: '已销卡',
+          color: 'red'
+        }
+      ],
+      countryList: [
+        {
+          value: 'AK',
+          label: 'AK (Alaska)'
+        },
+        {
+          value: 'AL',
+          label: 'AL (Alabama)'
+        },
+        {
+          value: 'AR',
+          label: 'AR (Arkansas)'
+        },
+        {
+          value: 'AZ',
+          label: 'AZ (Arizona)'
+        },
+        {
+          value: 'CA',
+          label: 'CA (California)'
+        },
+        {
+          value: 'CO',
+          label: 'CO (Colorado)'
+        },
+        {
+          value: 'CT',
+          label: 'CT (Connecticut)'
+        },
+        {
+          value: 'DC',
+          label: 'DC (District of Columbia)'
+        },
+        {
+          value: 'DE',
+          label: 'DE (Delaware)'
+        },
+        {
+          value: 'FL',
+          label: 'FL (Florida)'
+        },
+        {
+          value: 'GA',
+          label: 'GA (Georgia)'
+        },
+        {
+          value: 'HI',
+          label: 'HI (Hawaii)'
+        },
+        {
+          value: 'IA',
+          label: 'IA (Iowa)'
+        },
+        {
+          value: 'ID',
+          label: 'ID (Idaho)'
+        },
+        {
+          value: 'IL',
+          label: 'IL (Illinois)'
+        },
+        {
+          value: 'IN',
+          label: 'IN (Indiana)'
+        },
+        {
+          value: 'KS',
+          label: 'KS (Kansas)'
+        },
+        {
+          value: 'KY',
+          label: 'KY (Kentucky)'
+        },
+        {
+          value: 'LA',
+          label: 'LA (Louisiana)'
+        },
+        {
+          value: 'MA',
+          label: 'MA (Massachusetts)'
+        },
+        {
+          value: 'MD',
+          label: 'MD (Maryland)'
+        },
+        {
+          value: 'ME',
+          label: 'ME (Maine)'
+        },
+        {
+          value: 'MI',
+          label: 'MI (Michigan)'
+        },
+        {
+          value: 'MN',
+          label: 'MN (Minnesota)'
+        },
+        {
+          value: 'MO',
+          label: 'MO (Missouri)'
+        },
+        {
+          value: 'MS',
+          label: 'MS (Mississippi)'
+        },
+        {
+          value: 'MT',
+          label: 'MT (Montana)'
+        },
+        {
+          value: 'NC',
+          label: 'NC (North Carolina)'
+        },
+        {
+          value: 'ND',
+          label: 'ND (North Dakota)'
+        },
+        {
+          value: 'NE',
+          label: 'NE (Nebraska)'
+        },
+        {
+          value: 'NH',
+          label: 'NH (New Hampshire)'
+        },
+        {
+          value: 'NJ',
+          label: 'NJ (New Jersey)'
+        },
+        {
+          value: 'NM',
+          label: 'NM (New Mexico)'
+        },
+        {
+          value: 'NV',
+          label: 'NV (Nevada)'
+        },
+        {
+          value: 'NY',
+          label: 'NY (New York)'
+        },
+        {
+          value: 'OH',
+          label: 'OH (Ohio)'
+        },
+        {
+          value: 'OK',
+          label: 'OK (Oklahoma)'
+        },
+        {
+          value: 'OR',
+          label: 'OR (Oregon)'
+        },
+        {
+          value: 'PA',
+          label: 'PA (Pennsylvania)'
+        },
+        {
+          value: 'RI',
+          label: 'RI (Rhode Island)'
+        },
+        {
+          value: 'SC',
+          label: 'SC (South Carolina)'
+        },
+        {
+          value: 'SD',
+          label: 'SD (South Dakota)'
+        },
+        {
+          value: 'TN',
+          label: 'TN (Tennessee)'
+        },
+        {
+          value: 'TX',
+          label: 'TX (Texas)'
+        },
+        {
+          value: 'UT',
+          label: 'UT (Utah)'
+        },
+        {
+          value: 'VA',
+          label: 'VA (Virginia)'
+        },
+        {
+          value: 'VT',
+          label: 'VT (Vermont)'
+        },
+        {
+          value: 'WA',
+          label: 'WA (Washington)'
+        },
+        {
+          value: 'WI',
+          label: 'WI (Wisconsin)'
+        },
+        {
+          value: 'WV',
+          label: 'WV (West Virginia)'
+        },
+        {
+          value: 'WY',
+          label: 'WY (Wyoming)'
+        }
+      ],
+      cardCountryList: [
         {
           value: 1,
           label: '有效卡',
@@ -777,6 +1095,17 @@ export default {
     ruleClick() {
       this.ruleHidden = !this.ruleHidden
     },
+    exchange(expanded) {
+      this.expanded = !expanded
+      if (!this.expanded) {
+        this.openRecharge.firstName = 'Edgar'
+        this.openRecharge.lastName = 'Hettinger'
+        this.openRecharge.city = 'San Jose'
+        this.openRecharge.address = '2381 Zanker Rd Ste 110'
+        this.openRecharge.state = 'CA'
+        this.openRecharge.zipCode = '95131'
+      }
+    },
     getExpense(bankId) {
       this.$axios.$get(`/api_client/expense?bankId=${bankId}`, this.queryObj).then(res => {
         if (res && res.code === 0) {
@@ -792,6 +1121,18 @@ export default {
       this.cardId = ''
       this.remark = ''
       this.bar2 = false
+    },
+    changeCheck(data) {
+      this.selectIdList = []
+      data.forEach(c => {
+        this.selectIdList.push(c.id)
+      })
+    },
+    changeAllCheck(data) {
+      this.selectIdList = []
+      data.forEach(c => {
+        this.selectIdList.push(c.id)
+      })
     },
     cardClick(data) {
       this.ruleHidden = true
@@ -898,7 +1239,14 @@ export default {
             bankCardId: select.id,
             amount: this.openRecharge.amount,
             remark: this.openRecharge.remark,
-            count: this.openRecharge.count
+            count: this.openRecharge.count,
+            address: this.openRecharge.address,
+            state: this.openRecharge.state,
+            city: this.openRecharge.city,
+            zipCode: this.openRecharge.zipCode,
+            firstName: this.openRecharge.firstName,
+            lastName: this.openRecharge.lastName,
+            custom: this.expanded,
           }
           this.$axios.$postForm('/api_client/open_card', openForm).then((resp) => {
             if (resp && resp.code === 0) {
@@ -1016,6 +1364,38 @@ export default {
     query() {
       // this.queryObj.pageNumber = 1
       this.getList()
+    },
+    batchCancelCard() {
+      // this.queryObj.pageNumber = 1
+      if (!this.selected || this.selectIdList.length === 0) {
+        this.selected = !this.selected
+      } else {
+        this.$refs.selectModal.show()
+      }
+    },
+    batchCancelCard2() {
+      this.$refs.selectModal.hide()
+      if (this.selectIdList.length === 0) {
+        this.$notify.error("请选择需要删除的信用卡")
+      } else {
+        var aa = JSON.stringify(this.selectIdList)
+        const cancelForm = {
+          userBankCardIds: aa
+        }
+        this.$axios.$postForm('/api_client/batch_cancel_card', cancelForm).then((resp) => {
+          if (resp && resp.code === 0) {
+            this.selectIdList = []
+            this.selected = !this.selected
+            this.$refs.listTable.clear()
+            this.getList()
+          }
+        })
+      }
+    },
+    cancelBatchCancelCard(){
+      this.selected = false
+      this.selectIdList = []
+      this.$refs.listTable.clear()
     },
     reset() {
       this.queryObj = {
