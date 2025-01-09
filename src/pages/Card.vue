@@ -60,7 +60,7 @@
         </template>
         <div class="flex content-center justify-center" slot="balance" slot-scope="row">
           {{ row.data.balance }}
-          <q-icon v-if="row.data.state===1" name="ti-reload" class="flush" size="12px" style="color: #777986"
+          <q-icon v-if="row.data.state!=0" name="ti-reload" class="flush" size="12px" style="color: #777986"
                   @click="getUserCardsBalance(row.data, true)"/>
 
         </div>
@@ -194,14 +194,14 @@
               </div>
 
             </div>
-            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+            <div v-show="select.bin != '493193'" class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
               <div v-if="!expanded" class="title" style="cursor: pointer;color: #3dd5f3" @click="exchange(expanded)">
                 手动填写地址
               </div>
               <div v-else class="title" style="cursor: pointer;color: #3dd5f3" @click="exchange(expanded)">默认地址
               </div>
             </div>
-            <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
+            <div v-show="select.bin != '493193'" class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
               <div class="item">
                 <div class="title">国家</div>
                 <q-input class="Ainput"
@@ -272,12 +272,15 @@
                 >
                 </q-input>
               </div>
+            </div>
+
+            <div class=" q-pl-lg q-mt-lg">
               <div class="item">
                 <div class="title">姓</div>
                 <q-input class="Ainput"
                          outlined
                          dense
-                         :disable="!expanded"
+                         :disable="!expanded && select.bin != '493193'"
                          lazy-rules
                          :rules="[
                       (val) => val !== null && val !== ''  || '请输入姓']"
@@ -291,7 +294,7 @@
                 <q-input class="Ainput"
                          outlined
                          dense
-                         :disable="!expanded"
+                         :disable="!expanded && select.bin != '493193'"
                          lazy-rules
                          :rules="[
                       (val) => val !== null && val !== ''  || '请输入名字']"
@@ -300,6 +303,21 @@
                 >
                 </q-input>
               </div>
+            </div>
+
+            <div class="item q-pl-lg q-mt-lg" v-show="select.bin === '493193'">
+              <div class="title">邮箱</div>
+              <q-input class="Ainput"
+                       outlined
+                       dense
+                       lazy-rules
+                       :rules="[
+                      (val) => val !== null && val !== ''  || '请输入邮箱']"
+                       style="display: inline-block"
+                       v-model="openRecharge.eMail"
+                       label="请输入您接收验证码的邮箱地址，部分平台消费可能会触发交易验证，除手机短信外，可用此邮箱接收对应的交易验证码。"
+              >
+              </q-input>
             </div>
 
             <div class=" q-pl-lg q-mt-lg" style="margin-top: 50px">
@@ -643,7 +661,8 @@
       </q-card>
     </q-dialog>
 
-    <w-modal ref="selectModal" title="批量删卡" @on-ok="batchCancelCard2" @on-cancel="cancelBatchCancelCard" min-width="500px">
+    <w-modal ref="selectModal" title="批量删卡" @on-ok="batchCancelCard2" @on-cancel="cancelBatchCancelCard"
+             min-width="500px">
       <div>1、请确认选择的卡号是需要进行销卡的卡号</div>
       <div>2、销卡操作<span style="color: red">不可撤销</span></div>
       <div>3、发起销卡后该卡<span style="color: red">无法再进行交易</span></div>
@@ -1085,7 +1104,7 @@ export default {
           this.list = res.rows
           this.list.forEach(item => {
             this.$set(item, 'balance', '')
-            if (item.state === 1 && (item.adapterSign === 'vm-card2' || item.adapterSign === 'vm-card' || item.adapterSign === 'ipe')) {
+            if (item.state != 0 && (item.adapterSign === 'vm-card2' || item.adapterSign === 'vm-card' || item.adapterSign === 'ipe')) {
               this.getUserCardsBalance(item, true);
             }
           })
@@ -1247,6 +1266,7 @@ export default {
             firstName: this.openRecharge.firstName,
             lastName: this.openRecharge.lastName,
             custom: this.expanded,
+            eMail: this.openRecharge.eMail
           }
           this.$axios.$postForm('/api_client/open_card', openForm).then((resp) => {
             if (resp && resp.code === 0) {
@@ -1392,7 +1412,7 @@ export default {
         })
       }
     },
-    cancelBatchCancelCard(){
+    cancelBatchCancelCard() {
       this.selected = false
       this.selectIdList = []
       this.$refs.listTable.clear()

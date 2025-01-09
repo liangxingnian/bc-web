@@ -2,20 +2,20 @@
   <q-page>
     <div class="bg-white" style="border-radius: 5px;">
       <div style="font-size: 22px;border-bottom: 1px solid rgba(0,0,0,0.1)" class="flex content-center q-pl-lg q-py-lg">
-          <b>账户信息</b>
+        <b>账户信息</b>
       </div>
       <div class="q-px-lg">
         <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 16px" class="q-py-lg">
           <div>全名</div>
-          <div>{{client.name}}</div>
+          <div>{{ client.name }}</div>
         </div>
         <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 16px" class="q-py-lg">
           <div>账户</div>
-          <div>{{user.name}}</div>
+          <div>{{ user.name }}</div>
         </div>
         <div style="border-bottom: 1px solid rgba(0,0,0,0.1);font-size: 16px" class="q-py-lg">
           <div>用户ID（userSerial）</div>
-          <div>{{client.id}}</div>
+          <div>{{ client.id }}</div>
         </div>
         <div class="q-py-lg flex justify-between" style="font-size: 16px">
           <div>
@@ -23,7 +23,7 @@
             <div>********</div>
           </div>
           <div class="float-right">
-            <q-btn @click="showExportModal" outline color="primary" label="修改密码" />
+            <q-btn @click="showExportModal" outline color="primary" label="修改密码"/>
           </div>
         </div>
       </div>
@@ -128,15 +128,9 @@ export default {
     } catch (aa) {
 
     }
-    this.getArticle()
     this.getClientCurrent()
   },
   methods: {
-    getArticle() {
-      this.$axios.$get('/article', {skipDefault: true}).then(res => {
-        this.article = res.content
-      })
-    },
     getClientCurrent() {
       this.$axios.$get('/api_client/current', {skipDefault: true}).then(res => {
         this.client = res.content
@@ -202,8 +196,7 @@ export default {
 }
 
 .tip {
-//margin-top: 30px; background-color:$orange-1;
-  padding: 10px;
+//margin-top: 30px; background-color:$orange-1; padding: 10px;
   border-radius: 5px;
 }
 

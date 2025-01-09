@@ -94,12 +94,14 @@
 
             <div class="item q-mt-lg">
               <div class="title">街道地址</div>
-              <b>{{ this.cardDetail.addressMv.street }}</b>
+              <b v-if="this.cardDetail.bin != '493193'">{{ this.cardDetail.addressMv.street }}</b>
+              <b v-else>Sino Plaza Wan Chai</b>
             </div>
 
             <div class="item q-mt-lg">
               <div class="title">城市</div>
-              <b>{{ this.cardDetail.addressMv.city }}</b>
+              <b v-if="this.cardDetail.bin != '493193'">{{ this.cardDetail.addressMv.city }}</b>
+              <b v-else>HK</b>
             </div>
 
           </div>
@@ -113,12 +115,14 @@
 
             <div class="item q-mt-lg">
               <div class="title">洲</div>
-              <b>{{ this.cardDetail.addressMv.state }}</b>
+              <b v-if="this.cardDetail.bin != '493193'">{{ this.cardDetail.addressMv.state }}</b>
+              <b v-else>HK</b>
             </div>
 
             <div class="item q-mt-lg">
               <div class="title">邮编</div>
-              <b>{{ this.cardDetail.addressMv.zipCode }}</b>
+              <b v-if="this.cardDetail.bin != '493193'">{{ this.cardDetail.addressMv.zipCode }}</b>
+              <b v-else>999077</b>
             </div>
           </div>
         </div>

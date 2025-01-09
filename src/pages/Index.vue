@@ -13,8 +13,6 @@
           <q-btn v-else flat color="primary" @click="isMore=false" size="md" label="隐藏"/>
         </div>
       </div>
-
-
     </div>
 
     <div class="q-mt-md bg-white" style="border-radius: 5px">
@@ -221,7 +219,7 @@ export default {
   },
   methods: {
     getArticle() {
-      this.$axios.$get('/article', {skipDefault: true}).then(res => {
+      this.$axios.$get('/article', {skipDefault: true,isZh:true}).then(res => {
         this.article = res.content
       })
     },

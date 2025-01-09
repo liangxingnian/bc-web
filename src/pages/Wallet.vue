@@ -147,7 +147,7 @@
       </div>
       <div v-else>2. 充值手续费：<span style="color: red">0.8%</span>，转账成功后将扣除手续费并入账至您的账户余额。</div>
       <div>3. 最低充值金额10，低于10系统不处理入账，需充值满10后系统自动入账。</div>
-      <div>4. 系统自动确认到账，确认时间约<span style="color: red">2分钟</span>，超过30分钟未入账，可联系在线客服查询。
+      <div>4. 系统自动确认到账，确认时间约<span style="color: red">2分钟</span>，超过3分钟未入账，可联系在线客服查询。
       </div>
       <div>5. 请<span style="color: red">仔细核对转账地址</span>，如由于剪切板内容被篡改导致转账地址错误，我司不承担损失。
       </div>
@@ -158,7 +158,7 @@
       <div>请在<span style="color: red">30分钟</span>内支付完成，否则<span style="color: red">订单失效</span>。</div>
       <br>
       <div>付款金额 (点击复制) : <span class="text" @click="copy(fundForm.amount)"
-                                       style="color: #26A69A">{{ this.fundForm.amount }}</span> （付款金额包括小数点）
+                                       style="color: #26A69A">{{ this.fundForm.amount }}</span> （转账金额需与显示的金额一致,否则无法到账!）
       </div>
       <div>付款地址 (点击复制) : <span class="text" @click="copy(fundForm.address)"
                                        style="color: #00bcd4">{{ this.fundForm.address }}</span></div>
